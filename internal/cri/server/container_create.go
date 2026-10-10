@@ -36,6 +36,7 @@ import (
 
 	containerd "github.com/containerd/containerd/v2/client"
 	"github.com/containerd/containerd/v2/core/containers"
+	"github.com/containerd/containerd/v2/core/snapshots"
 	"github.com/containerd/containerd/v2/internal/cri/annotations"
 	criconfig "github.com/containerd/containerd/v2/internal/cri/config"
 	cio "github.com/containerd/containerd/v2/internal/cri/io"
@@ -308,6 +309,15 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 	if err != nil {
 		return "", err
 	}
+	// Canonical identity must override any labels supplied by earlier options.
+	sOpts = append(sOpts, snapshots.WithLabels(annotations.DefaultCRISnapshotLabelsForContainer(
+		r.sandboxID,
+		r.containerName,
+		imageName,
+		r.sandbox.Config,
+		r.containerID,
+		r.containerConfig.GetMetadata().GetAttempt(),
+	)))
 
 	// Set snapshotter before any other options.
 	opts := []containerd.NewContainerOpts{

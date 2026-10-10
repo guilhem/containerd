@@ -33,6 +33,7 @@ import (
 	containerd "github.com/containerd/containerd/v2/client"
 	"github.com/containerd/containerd/v2/core/sandbox"
 	"github.com/containerd/containerd/v2/core/snapshots"
+	"github.com/containerd/containerd/v2/internal/cri/annotations"
 	criconfig "github.com/containerd/containerd/v2/internal/cri/config"
 	crilabels "github.com/containerd/containerd/v2/internal/cri/labels"
 	customopts "github.com/containerd/containerd/v2/internal/cri/opts"
@@ -190,7 +191,11 @@ func (c *Controller) Start(ctx context.Context, id string) (cin sandbox.Controll
 
 	sandboxLabels := ctrdutil.BuildLabels(config.Labels, imageSpec.Config.Labels, crilabels.ContainerKindSandbox)
 
-	snapshotterOpt := []snapshots.Opt{snapshots.WithLabels(snapshots.FilterInheritedLabels(config.Annotations))}
+	snapshotLabels := annotations.MergeSnapshotLabels(
+		snapshots.FilterInheritedLabels(config.Annotations),
+		annotations.DefaultCRISnapshotLabelsForSandbox(id, sandboxImage, config),
+	)
+	snapshotterOpt := []snapshots.Opt{snapshots.WithLabels(snapshotLabels)}
 	extraSOpts, err := sandboxSnapshotterOpts(config)
 	if err != nil {
 		return cin, err

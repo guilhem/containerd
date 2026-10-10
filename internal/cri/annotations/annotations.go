@@ -17,9 +17,21 @@
 package annotations
 
 import (
+	"maps"
+	"strconv"
+
 	customopts "github.com/containerd/containerd/v2/internal/cri/opts"
 	"github.com/containerd/containerd/v2/pkg/oci"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1"
+)
+
+const snapshotLabelPrefix = "containerd.io/snapshot/"
+
+const (
+	// SnapshotContainerID identifies the containerd-generated container ID on a rootfs snapshot.
+	SnapshotContainerID = snapshotLabelPrefix + "io.kubernetes.cri.container-id"
+	// SnapshotContainerAttempt records the CRI ContainerMetadata.Attempt as an unsigned decimal.
+	SnapshotContainerAttempt = snapshotLabelPrefix + "io.kubernetes.cri.container-attempt"
 )
 
 // ContainerType values
@@ -132,4 +144,55 @@ func DefaultCRIAnnotations(
 		)
 	}
 	return append(opts, customopts.WithAnnotation(ContainerType, ctrType))
+}
+
+// SnapshotLabel returns the snapshot label name for a CRI annotation.
+func SnapshotLabel(name string) string {
+	return snapshotLabelPrefix + name
+}
+
+// DefaultCRISnapshotLabelsForSandbox returns the canonical CRI identity labels
+// for a sandbox rootfs snapshot, using the controller's stored configuration.
+func DefaultCRISnapshotLabelsForSandbox(sandboxID, imageName string, config *runtime.PodSandboxConfig) map[string]string {
+	labels := defaultCRISnapshotLabels(sandboxID, config, ContainerTypeSandbox)
+	labels[SnapshotLabel(SandboxImageName)] = imageName
+	return labels
+}
+
+// DefaultCRISnapshotLabelsForContainer returns the canonical CRI identity labels
+// for a container rootfs snapshot. config must be the stored sandbox configuration.
+func DefaultCRISnapshotLabelsForContainer(
+	sandboxID string,
+	containerName string,
+	imageName string,
+	config *runtime.PodSandboxConfig,
+	containerID string,
+	attempt uint32,
+) map[string]string {
+	labels := defaultCRISnapshotLabels(sandboxID, config, ContainerTypeContainer)
+	labels[SnapshotLabel(ContainerName)] = containerName
+	labels[SnapshotLabel(ImageName)] = imageName
+	labels[SnapshotContainerID] = containerID
+	labels[SnapshotContainerAttempt] = strconv.FormatUint(uint64(attempt), 10)
+	return labels
+}
+
+func defaultCRISnapshotLabels(sandboxID string, config *runtime.PodSandboxConfig, containerType string) map[string]string {
+	return map[string]string{
+		SnapshotLabel(SandboxID):        sandboxID,
+		SnapshotLabel(SandboxNamespace): config.GetMetadata().GetNamespace(),
+		SnapshotLabel(SandboxUID):       config.GetMetadata().GetUid(),
+		SnapshotLabel(SandboxName):      config.GetMetadata().GetName(),
+		SnapshotLabel(ContainerType):    containerType,
+	}
+}
+
+// MergeSnapshotLabels merges maps in order; later maps override earlier maps.
+// Pass canonical CRI identity last so inherited labels cannot replace it.
+func MergeSnapshotLabels(labels ...map[string]string) map[string]string {
+	merged := make(map[string]string)
+	for _, labelSet := range labels {
+		maps.Copy(merged, labelSet)
+	}
+	return merged
 }
