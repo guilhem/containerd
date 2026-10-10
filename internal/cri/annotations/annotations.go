@@ -158,7 +158,7 @@ func DefaultCRISnapshotLabelsForSandbox(
 }
 
 // DefaultCRISnapshotLabelsForContainer returns the default set of CRI identity
-// labels to pass to snapshotters for a container.
+// labels to pass to snapshotters for a container. config is the stored sandbox configuration.
 func DefaultCRISnapshotLabelsForContainer(
 	sandboxID string,
 	containerName string,
@@ -186,8 +186,7 @@ func defaultCRISnapshotLabels(
 }
 
 // MergeSnapshotLabels merges snapshot label maps in order. Later maps override
-// earlier maps, allowing inherited or user-provided labels to take precedence
-// over defaults.
+// earlier maps. Pass canonical CRI identity last when merging inherited labels.
 func MergeSnapshotLabels(labels ...map[string]string) map[string]string {
 	var total int
 	for _, labelSet := range labels {

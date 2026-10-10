@@ -192,8 +192,8 @@ func (c *Controller) Start(ctx context.Context, id string) (cin sandbox.Controll
 	sandboxLabels := ctrdutil.BuildLabels(config.Labels, imageSpec.Config.Labels, crilabels.ContainerKindSandbox)
 
 	snapshotLabels := annotations.MergeSnapshotLabels(
-		annotations.DefaultCRISnapshotLabelsForSandbox(id, sandboxImage, config),
 		snapshots.FilterInheritedLabels(config.Annotations),
+		annotations.DefaultCRISnapshotLabelsForSandbox(id, sandboxImage, config),
 	)
 	snapshotterOpt := []snapshots.Opt{snapshots.WithLabels(snapshotLabels)}
 	extraSOpts, err := sandboxSnapshotterOpts(config)

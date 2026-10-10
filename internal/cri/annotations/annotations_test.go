@@ -25,8 +25,21 @@ import (
 	"github.com/containerd/containerd/v2/core/snapshots"
 )
 
-func TestSnapshotLabelPrefixMatchesSnapshotsPackage(t *testing.T) {
-	assert.Equal(t, snapshots.LabelSnapshotPrefix, SnapshotLabelPrefix)
+func TestSnapshotLabelInheritance(t *testing.T) {
+	config := &runtime.PodSandboxConfig{Metadata: &runtime.PodSandboxMetadata{Uid: "pod-uid"}}
+	for name, labels := range map[string]map[string]string{
+		"sandbox":   DefaultCRISnapshotLabelsForSandbox("sandbox-id", "pause-image", config),
+		"container": DefaultCRISnapshotLabelsForContainer("sandbox-id", "container-name", "container-image", config),
+	} {
+		t.Run(name, func(t *testing.T) {
+			labels["unrelated.annotation"] = "not-inherited"
+			inherited := snapshots.FilterInheritedLabels(labels)
+			assert.Equal(t, "pod-uid", inherited["containerd.io/snapshot/io.kubernetes.cri.sandbox-uid"])
+			assert.NotContains(t, inherited, "unrelated.annotation")
+			delete(labels, "unrelated.annotation")
+			assert.Equal(t, labels, inherited)
+		})
+	}
 }
 
 func TestDefaultCRISnapshotLabelsForContainer(t *testing.T) {
@@ -88,4 +101,16 @@ func TestMergeSnapshotLabelsAllowsOverrides(t *testing.T) {
 	assert.Equal(t, "default-pod-name", labels[SnapshotLabel(SandboxName)])
 	assert.Equal(t, "custom-value", labels["containerd.io/snapshot/custom"])
 	assert.Equal(t, "default-sandbox-id", defaults[SnapshotLabel(SandboxID)])
+}
+
+func TestMergeSnapshotLabelsMultipleSources(t *testing.T) {
+	first := map[string]string{"shared": "first", "first-only": "retained"}
+	last := map[string]string{"shared": "last", "last-only": "retained"}
+	labels := MergeSnapshotLabels(first, nil, map[string]string{"shared": "middle"}, last)
+	assert.Equal(t, map[string]string{"shared": "last", "first-only": "retained", "last-only": "retained"}, labels)
+	labels["shared"] = "mutated"
+	assert.Equal(t, "first", first["shared"])
+	assert.Equal(t, "last", last["shared"])
+	assert.Empty(t, MergeSnapshotLabels())
+	assert.Empty(t, MergeSnapshotLabels(nil))
 }
