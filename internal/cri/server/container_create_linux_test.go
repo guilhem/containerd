@@ -26,6 +26,7 @@ import (
 
 	"github.com/containerd/containerd/v2/core/containers"
 	"github.com/containerd/containerd/v2/core/mount"
+	"github.com/containerd/containerd/v2/core/snapshots"
 	"github.com/containerd/containerd/v2/pkg/oci"
 	"github.com/containerd/platforms"
 	imagespec "github.com/opencontainers/image-spec/specs-go/v1"
@@ -1341,6 +1342,29 @@ func TestPrivilegedDevices(t *testing.T) {
 			assert.Equal(t, spec.Linux.Resources.Devices[0].Access, "rwm")
 		})
 	}
+}
+
+func TestSnapshotOptsUserNamespaceMappings(t *testing.T) {
+	config := &runtime.ContainerConfig{Linux: &runtime.LinuxContainerConfig{
+		SecurityContext: &runtime.LinuxContainerSecurityContext{
+			NamespaceOptions: &runtime.NamespaceOption{UsernsOptions: &runtime.UserNamespace{
+				Mode: runtime.NamespaceMode_POD,
+				Uids: []*runtime.IDMapping{{ContainerId: 0, HostId: 100000, Length: 65536}},
+				Gids: []*runtime.IDMapping{{ContainerId: 0, HostId: 200000, Length: 65536}},
+			}},
+		},
+	}}
+	platformOpts, err := snapshotterOpts(config)
+	require.NoError(t, err)
+	info := resolveSnapshotOpts(t, snapshotOpts(map[string]string{
+		snapshots.LabelSnapshotRef:        "spoofed",
+		snapshots.LabelSnapshotUIDMapping: "0:1:1",
+		snapshots.LabelSnapshotGIDMapping: "0:1:1",
+	}, platformOpts))
+	assert.Equal(t, map[string]string{
+		snapshots.LabelSnapshotUIDMapping: "0:100000:65536",
+		snapshots.LabelSnapshotGIDMapping: "0:200000:65536",
+	}, info.Labels)
 }
 
 func TestBaseOCISpec(t *testing.T) {

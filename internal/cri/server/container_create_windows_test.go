@@ -30,6 +30,33 @@ import (
 	"github.com/containerd/containerd/v2/internal/cri/config"
 )
 
+func TestWindowsSnapshotOptsPrecedence(t *testing.T) {
+	const rootfsSize = "containerd.io/snapshot/windows/rootfs.sizebytes"
+	for _, test := range []struct {
+		name       string
+		annotation map[string]string
+		criSize    int64
+		wantLabels map[string]string
+	}{
+		{name: "CRI size overrides annotation", annotation: map[string]string{rootfsSize: "1"}, criSize: 68719476736, wantLabels: map[string]string{rootfsSize: "68719476736"}},
+		{name: "CRI size overrides invalid annotation", annotation: map[string]string{rootfsSize: "invalid"}, criSize: 68719476736, wantLabels: map[string]string{rootfsSize: "68719476736"}},
+		{name: "CRI size without annotation", criSize: 68719476736, wantLabels: map[string]string{rootfsSize: "68719476736"}},
+		{name: "annotation without CRI size", annotation: map[string]string{rootfsSize: "33554432"}, wantLabels: map[string]string{rootfsSize: "33554432"}},
+		{name: "invalid annotation without CRI size", annotation: map[string]string{rootfsSize: "invalid"}, wantLabels: map[string]string{rootfsSize: "invalid"}},
+		{name: "no size"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			config := &runtime.ContainerConfig{Windows: &runtime.WindowsContainerConfig{
+				Resources: &runtime.WindowsContainerResources{RootfsSizeInBytes: test.criSize},
+			}}
+			platformOpts, err := snapshotterOpts(config)
+			require.NoError(t, err)
+			info := resolveSnapshotOpts(t, snapshotOpts(test.annotation, platformOpts))
+			assert.Equal(t, test.wantLabels, info.Labels)
+		})
+	}
+}
+
 func getSandboxConfig() *runtime.PodSandboxConfig {
 	return &runtime.PodSandboxConfig{
 		Metadata: &runtime.PodSandboxMetadata{

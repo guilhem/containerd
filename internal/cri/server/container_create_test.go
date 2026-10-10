@@ -19,6 +19,7 @@ package server
 import (
 	"context"
 	"errors"
+	"maps"
 	"os"
 	"path/filepath"
 	goruntime "runtime"
@@ -33,6 +34,7 @@ import (
 	"github.com/stretchr/testify/require"
 	runtime "k8s.io/cri-api/pkg/apis/runtime/v1"
 
+	"github.com/containerd/containerd/v2/core/snapshots"
 	"github.com/containerd/containerd/v2/internal/cri/config"
 	"github.com/containerd/containerd/v2/internal/cri/constants"
 	"github.com/containerd/containerd/v2/internal/cri/opts"
@@ -514,6 +516,225 @@ func TestContainerAnnotationPassthroughContainerSpec(t *testing.T) {
 			specCheck(t, testID, testSandboxID, testPid, spec)
 			if test.specCheck != nil {
 				test.specCheck(t, spec)
+			}
+		})
+	}
+}
+
+func resolveSnapshotOpts(t *testing.T, opts []snapshots.Opt) snapshots.Info {
+	t.Helper()
+	var info snapshots.Info
+	for _, opt := range opts {
+		require.NoError(t, opt(&info))
+	}
+	return info
+}
+
+func TestSnapshotOptsPrecedence(t *testing.T) {
+	const windowsRootfsSize = "containerd.io/snapshot/windows/rootfs.sizebytes"
+	for _, test := range []struct {
+		name           string
+		annotations    map[string]string
+		platformLabels map[string]string
+		wantLabels     map[string]string
+	}{
+		{
+			name:           "Windows CRI rootfs size overrides annotation",
+			annotations:    map[string]string{windowsRootfsSize: "1"},
+			platformLabels: map[string]string{windowsRootfsSize: "68719476736"},
+			wantLabels:     map[string]string{windowsRootfsSize: "68719476736"},
+		},
+		{
+			name:           "Windows CRI rootfs size overrides invalid annotation",
+			annotations:    map[string]string{windowsRootfsSize: "not-a-size"},
+			platformLabels: map[string]string{windowsRootfsSize: "68719476736"},
+			wantLabels:     map[string]string{windowsRootfsSize: "68719476736"},
+		},
+		{
+			name:           "Windows CRI rootfs size overrides empty annotation",
+			annotations:    map[string]string{windowsRootfsSize: ""},
+			platformLabels: map[string]string{windowsRootfsSize: "68719476736"},
+			wantLabels:     map[string]string{windowsRootfsSize: "68719476736"},
+		},
+		{
+			name:           "absent annotation preserves Windows CRI rootfs size",
+			platformLabels: map[string]string{windowsRootfsSize: "68719476736"},
+			wantLabels:     map[string]string{windowsRootfsSize: "68719476736"},
+		},
+		{
+			name:        "annotation is forwarded without platform size",
+			annotations: map[string]string{windowsRootfsSize: "33554432"},
+			wantLabels:  map[string]string{windowsRootfsSize: "33554432"},
+		},
+		{
+			name:        "invalid annotation is forwarded without platform size",
+			annotations: map[string]string{windowsRootfsSize: "not-a-size"},
+			wantLabels:  map[string]string{windowsRootfsSize: "not-a-size"},
+		},
+		{
+			name:           "platform options override generic snapshot labels",
+			annotations:    map[string]string{snapshots.LabelSnapshotMaxSize: "1", "containerd.io/snapshot/example.com.subject": "opaque"},
+			platformLabels: map[string]string{snapshots.LabelSnapshotMaxSize: "33554432"},
+			wantLabels:     map[string]string{snapshots.LabelSnapshotMaxSize: "33554432", "containerd.io/snapshot/example.com.subject": "opaque"},
+		},
+		{
+			name: "no annotations or platform labels",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			platformOpts := []snapshots.Opt{snapshots.WithParent("image-parent")}
+			if test.platformLabels != nil {
+				platformOpts = append(platformOpts, snapshots.WithLabels(test.platformLabels))
+			}
+			info := resolveSnapshotOpts(t, snapshotOpts(test.annotations, platformOpts))
+			assert.Equal(t, test.wantLabels, info.Labels)
+			assert.Equal(t, "image-parent", info.Parent, "non-label platform options are preserved")
+		})
+	}
+}
+
+func TestContainerSnapshotAnnotations(t *testing.T) {
+	if currentPlatform.OS != "linux" && currentPlatform.OS != "windows" {
+		t.Skip("container spec fixtures require Linux or Windows")
+	}
+	const subject = "containerd.io/snapshot/example.com.subject"
+	for _, test := range []struct {
+		name                 string
+		containerAnnotations map[string]string
+		podAnnotations       map[string]string
+		baseAnnotations      map[string]string
+		containerAllowlist   []string
+		podAllowlist         []string
+		wantLabels           map[string]string
+		wantSpecAnnotations  map[string]string
+	}{
+		{
+			name:                 "allowlisted container annotation",
+			containerAnnotations: map[string]string{subject: "opaque:v1/a+b/= metadata-é"},
+			containerAllowlist:   []string{subject},
+			wantLabels:           map[string]string{subject: "opaque:v1/a+b/= metadata-é"},
+		},
+		{
+			name:                 "wildcard allowlist",
+			containerAnnotations: map[string]string{subject: "container", snapshots.LabelSnapshotMaxSize: "33554432"},
+			containerAllowlist:   []string{"containerd.io/snapshot/*"},
+			wantLabels:           map[string]string{subject: "container", snapshots.LabelSnapshotMaxSize: "33554432"},
+		},
+		{
+			name:           "allowlisted pod annotation",
+			podAnnotations: map[string]string{subject: "pod"},
+			podAllowlist:   []string{subject},
+			wantLabels:     map[string]string{subject: "pod"},
+		},
+		{
+			name:                 "container overrides pod",
+			containerAnnotations: map[string]string{subject: "container"},
+			podAnnotations:       map[string]string{subject: "pod"},
+			containerAllowlist:   []string{subject},
+			podAllowlist:         []string{subject},
+			wantLabels:           map[string]string{subject: "container"},
+		},
+		{
+			name:                 "rejected container annotation preserves pod value",
+			containerAnnotations: map[string]string{subject: "container"},
+			podAnnotations:       map[string]string{subject: "pod"},
+			podAllowlist:         []string{subject},
+			wantLabels:           map[string]string{subject: "pod"},
+		},
+		{
+			name:                 "no allowlist",
+			containerAnnotations: map[string]string{subject: "container"},
+			podAnnotations:       map[string]string{subject: "pod"},
+		},
+		{
+			name:                 "unmatched allowlist",
+			containerAnnotations: map[string]string{subject: "container"},
+			containerAllowlist:   []string{"containerd.io/snapshot/other.*"},
+		},
+		{
+			name:                 "allowlisted non-snapshot annotation",
+			containerAnnotations: map[string]string{"example.com/subject": "container", "containerd.io/snapshotter/subject": "container"},
+			containerAllowlist:   []string{"example.com/subject", "containerd.io/snapshotter/subject"},
+			wantSpecAnnotations:  map[string]string{"example.com/subject": "container", "containerd.io/snapshotter/subject": "container"},
+		},
+		{
+			name:                 "empty annotation is forwarded",
+			containerAnnotations: map[string]string{subject: ""},
+			containerAllowlist:   []string{subject},
+			wantLabels:           map[string]string{subject: ""},
+		},
+		{
+			name: "no annotations",
+		},
+		{
+			name:                 "reserved annotations removed without userns",
+			containerAnnotations: map[string]string{subject: "container", snapshots.LabelSnapshotRef: "spoofed", snapshots.LabelSnapshotUIDMapping: "0:1:1", snapshots.LabelSnapshotGIDMapping: "0:1:1"},
+			containerAllowlist:   []string{"containerd.io/snapshot/*", snapshots.LabelSnapshotRef},
+			wantLabels:           map[string]string{subject: "container"},
+			wantSpecAnnotations:  map[string]string{snapshots.LabelSnapshotRef: "spoofed", snapshots.LabelSnapshotUIDMapping: "0:1:1", snapshots.LabelSnapshotGIDMapping: "0:1:1"},
+		},
+		{
+			name:            "trusted base spec needs no allowlist",
+			baseAnnotations: map[string]string{subject: "base", "example.com/subject": "base"},
+			wantLabels:      map[string]string{subject: "base"},
+		},
+		{
+			name:                "reserved base spec annotations removed without userns",
+			baseAnnotations:     map[string]string{snapshots.LabelSnapshotRef: "spoofed", snapshots.LabelSnapshotUIDMapping: "0:1:1", snapshots.LabelSnapshotGIDMapping: "0:1:1"},
+			wantSpecAnnotations: map[string]string{snapshots.LabelSnapshotRef: "spoofed", snapshots.LabelSnapshotUIDMapping: "0:1:1", snapshots.LabelSnapshotGIDMapping: "0:1:1"},
+		},
+		{
+			name:            "pod overrides base spec",
+			baseAnnotations: map[string]string{subject: "base"},
+			podAnnotations:  map[string]string{subject: "pod"},
+			podAllowlist:    []string{subject},
+			wantLabels:      map[string]string{subject: "pod"},
+		},
+		{
+			name:                 "container overrides pod and base spec",
+			baseAnnotations:      map[string]string{subject: "base"},
+			podAnnotations:       map[string]string{subject: "pod"},
+			containerAnnotations: map[string]string{subject: "container"},
+			podAllowlist:         []string{subject},
+			containerAllowlist:   []string{subject},
+			wantLabels:           map[string]string{subject: "container"},
+		},
+		{
+			name:                 "unallowlisted annotations cannot override base spec",
+			baseAnnotations:      map[string]string{subject: "base"},
+			podAnnotations:       map[string]string{subject: "pod"},
+			containerAnnotations: map[string]string{subject: "container"},
+			wantLabels:           map[string]string{subject: "base"},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			c := newTestCRIService()
+			containerConfig, sandboxConfig, imageConfig, _ := getCreateContainerTestData()
+			containerConfig.Annotations = test.containerAnnotations
+			sandboxConfig.Annotations = test.podAnnotations
+			ociRuntime := config.Runtime{
+				ContainerAnnotations: test.containerAllowlist,
+				PodAnnotations:       test.podAllowlist,
+			}
+			if test.baseAnnotations != nil {
+				base, err := c.buildContainerSpec(currentPlatform, "base-id", "sandbox-id", 1234, "", "container", testImageName,
+					containerConfig, sandboxConfig, imageConfig, nil, config.Runtime{}, nil)
+				require.NoError(t, err)
+				base.Annotations = test.baseAnnotations
+				ociRuntime.BaseRuntimeSpec = "/etc/containerd/cri-base.json"
+				c.RuntimeService = &fakeRuntimeService{ocispecs: map[string]*oci.Spec{ociRuntime.BaseRuntimeSpec: base}}
+			}
+			spec, err := c.buildContainerSpec(currentPlatform, "test-id", "sandbox-id", 1234, "", "container", testImageName,
+				containerConfig, sandboxConfig, imageConfig, nil, ociRuntime, nil)
+			require.NoError(t, err)
+			platformOpts, err := snapshotterOpts(containerConfig)
+			require.NoError(t, err)
+			before := maps.Clone(spec.Annotations)
+			info := resolveSnapshotOpts(t, snapshotOpts(spec.Annotations, platformOpts))
+			assert.Equal(t, test.wantLabels, info.Labels)
+			assert.Equal(t, before, spec.Annotations, "snapshot filtering leaves OCI annotations intact")
+			for key, value := range test.wantSpecAnnotations {
+				assert.Equal(t, value, spec.Annotations[key])
 			}
 		})
 	}

@@ -36,6 +36,7 @@ import (
 
 	containerd "github.com/containerd/containerd/v2/client"
 	"github.com/containerd/containerd/v2/core/containers"
+	"github.com/containerd/containerd/v2/core/snapshots"
 	"github.com/containerd/containerd/v2/internal/cri/annotations"
 	criconfig "github.com/containerd/containerd/v2/internal/cri/config"
 	cio "github.com/containerd/containerd/v2/internal/cri/io"
@@ -317,7 +318,7 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 		// the runtime (runc) a chance to modify (e.g. to create mount
 		// points corresponding to spec.Mounts) before making the
 		// rootfs readonly (requested by spec.Root.Readonly).
-		customopts.WithNewSnapshot(r.containerID, *r.containerdImage, !c.ImageService.Config().DisableSnapshotAnnotations, sOpts...),
+		customopts.WithNewSnapshot(r.containerID, *r.containerdImage, !c.ImageService.Config().DisableSnapshotAnnotations, snapshotOpts(spec.Annotations, sOpts)...),
 	}
 	if len(volumeMounts) > 0 {
 		mountMap := make(map[string]string)
@@ -454,6 +455,19 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 	)
 
 	return containerRootDir, nil
+}
+
+// snapshotOpts applies inherited spec annotations before platform-generated rootfs options.
+func snapshotOpts(annotations map[string]string, platformOpts []snapshots.Opt) []snapshots.Opt {
+	labels := snapshots.FilterInheritedLabels(annotations)
+	// CRI owns snapshot references and user namespace mappings, even without userns.
+	delete(labels, snapshots.LabelSnapshotRef)
+	delete(labels, snapshots.LabelSnapshotUIDMapping)
+	delete(labels, snapshots.LabelSnapshotGIDMapping)
+	if len(labels) == 0 {
+		return platformOpts
+	}
+	return append([]snapshots.Opt{snapshots.WithLabels(labels)}, platformOpts...)
 }
 
 // volumeMounts sets up image volumes for container. Rely on the removal of container

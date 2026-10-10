@@ -6,6 +6,10 @@ path: `/etc/containerd/config.toml`).
 See [here](https://github.com/containerd/containerd/blob/main/docs/ops.md)
 for more information about containerd config.
 
+See [Application container snapshot annotations](snapshot-annotations.md) for
+forwarding selected workload metadata to the rootfs snapshotter through runtime
+annotation allowlists.
+
 Note that the `[plugins."io.containerd.grpc.v1.cri"]` section is specific to CRI,
 and not recognized by other containerd clients such as `ctr`, `nerdctl`, and Docker/Moby.
 
