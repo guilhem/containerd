@@ -313,9 +313,10 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 		r.sandboxID,
 		r.containerName,
 		imageName,
-		r.podSandboxConfig,
+		r.sandbox.Config,
 	)
-	sOpts = append([]snapshots.Opt{snapshots.WithLabels(defaultSnapshotLabels)}, sOpts...)
+	// Canonical CRI identity wins over labels supplied by earlier options.
+	sOpts = append(sOpts, snapshots.WithLabels(defaultSnapshotLabels))
 
 	// Set snapshotter before any other options.
 	opts := []containerd.NewContainerOpts{
