@@ -69,7 +69,7 @@ defaults when its configuration block is omitted. Contains properties:
 : Section to enable and configure a debug socket listener. In version 4, use the
 server plugin **io.containerd.server.v1.debug** instead. Contains properties:
 
-- **address** (Default: "/run/containerd/debug.sock")
+- **address** (Default: "") Debug endpoint does not listen by default
 - **uid** (Default: 0)
 - **gid** (Default: 0)
 - **level** (Default: "info") sets the debug log level. Supported levels are:
@@ -170,6 +170,9 @@ documentation.
 
 - **type** (Default: "")
 - **address** (Default: "")
+- **default_timeout** (Default: "") a duration bounding each call to the plugin
+  when the caller's context carries no deadline of its own, for example "30m".
+  Empty leaves calls unbounded unless the caller's context carries a deadline of its own. Currently honored by snapshot proxy plugins.
 
 **timeouts**
 : Timeouts specified as a duration

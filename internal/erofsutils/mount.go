@@ -29,9 +29,21 @@ import (
 
 	"github.com/containerd/errdefs"
 	"github.com/containerd/log"
+	"github.com/opencontainers/go-digest"
 
 	"github.com/containerd/containerd/v2/core/mount"
 )
+
+// CacheBlobPath returns the layer content cache path for a diffID, following the
+// <dir>/<algo>/<xx>/<hex>.erofs layout, where <xx> is the first two characters of
+// the encoded digest. The extra prefix directory shards blobs so no single
+// directory grows unwieldy for a large cache. It is the single source of the
+// layout, shared by the cache producer (ctr build-erofs-cache) and the erofs
+// snapshotter that reads it, so the two never drift.
+func CacheBlobPath(dir string, diffID digest.Digest) string {
+	enc := diffID.Encoded()
+	return filepath.Join(dir, diffID.Algorithm().String(), enc[:2], enc+".erofs")
+}
 
 // IsErofsMediaType returns true if the media type is an EROFS layer type.
 func IsErofsMediaType(mt string) bool {
@@ -123,10 +135,6 @@ func GenerateTarIndexAndAppendTar(ctx context.Context, r io.Reader, layerPath, u
 
 // AddDefaultMkfsOpts adds default options for mkfs.erofs
 func AddDefaultMkfsOpts(mkfsExtraOpts []string) []string {
-	if runtime.GOOS != "darwin" {
-		return mkfsExtraOpts
-	}
-
 	// Check if -b argument is already present
 	for _, opt := range mkfsExtraOpts {
 		if strings.HasPrefix(opt, "-b") {
@@ -134,8 +142,7 @@ func AddDefaultMkfsOpts(mkfsExtraOpts []string) []string {
 		}
 	}
 
-	// Add -b4096 as the first option to prevent unusable block
-	// size from being used on macOS.
+	// Default to a 4K block size so images mount on any page size.
 	return append([]string{"-b4096"}, mkfsExtraOpts...)
 }
 

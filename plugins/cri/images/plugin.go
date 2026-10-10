@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	containerd "github.com/containerd/containerd/v2/client"
 	"github.com/containerd/containerd/v2/core/metadata"
@@ -95,7 +96,7 @@ func init() {
 
 			options := &images.CRIImageServiceOptions{
 				Content:          mdb.ContentStore(),
-				RuntimePlatforms: map[string]images.ImagePlatform{},
+				RuntimePlatforms: map[string]*images.ImagePlatform{},
 				Snapshotters:     map[string]snapshots.Snapshotter{},
 				ImageFSPaths:     map[string]string{},
 				Transferrer:      ts.(transfer.Transferrer),
@@ -155,7 +156,7 @@ func init() {
 					platform = p
 				}
 
-				options.RuntimePlatforms[runtimeName] = images.ImagePlatform{
+				options.RuntimePlatforms[runtimeName] = &images.ImagePlatform{
 					Snapshotter: snapshotter,
 					Platform:    platform,
 				}
@@ -164,6 +165,11 @@ func init() {
 			service, err := images.NewService(config, options)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create image service: %w", err)
+			}
+
+			ic.Meta.Exports = map[string]string{
+				"DiscardUnpackedLayers": strconv.FormatBool(config.DiscardUnpackedLayers),
+				"RegistryConfigPath":    config.Registry.ConfigPath,
 			}
 
 			return service, nil

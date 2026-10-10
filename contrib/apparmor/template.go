@@ -52,6 +52,10 @@ profile {{.Name}} flags=(attach_disconnected,mediate_deleted) {
 {{end}}
 
   network,
+  # Disallow AF_ALG (Linux kernel crypto API); see https://copy.fail/
+  deny network alg,
+  # Disallow AF_VSOCK to prevent host/guest communication.
+  deny network vsock,
   capability,
   file,
   umount,
@@ -178,7 +182,7 @@ func macroExists(m string) bool {
 }
 
 func aaParser(args ...string) (string, error) {
-	out, err := exec.Command("apparmor_parser", args...).CombinedOutput()
+	out, err := exec.Command("apparmor_parser", args...).CombinedOutput() //nolint:gosec // G702: arguments are passed directly to a fixed executable.
 	return string(out), err
 }
 

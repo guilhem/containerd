@@ -28,7 +28,6 @@ import (
 	"github.com/containerd/log"
 	"github.com/containerd/platforms"
 	"github.com/containerd/typeurl/v2"
-	"github.com/davecgh/go-spew/spew"
 	imagespec "github.com/opencontainers/image-spec/specs-go/v1"
 	runtimespec "github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/opencontainers/selinux/go-selinux"
@@ -44,7 +43,7 @@ import (
 	crilabels "github.com/containerd/containerd/v2/internal/cri/labels"
 	customopts "github.com/containerd/containerd/v2/internal/cri/opts"
 	containerstore "github.com/containerd/containerd/v2/internal/cri/store/container"
-	"github.com/containerd/containerd/v2/internal/cri/store/sandbox"
+	sandboxstore "github.com/containerd/containerd/v2/internal/cri/store/sandbox"
 	"github.com/containerd/containerd/v2/internal/cri/util"
 	"github.com/containerd/containerd/v2/internal/registrar"
 	"github.com/containerd/containerd/v2/pkg/blockio"
@@ -77,6 +76,9 @@ func (c *criService) CreateContainer(ctx context.Context, r *runtime.CreateConta
 		sandboxID  = cstatus.SandboxID
 		sandboxPid = cstatus.Pid
 	)
+	if sandbox.Status.Get().State != sandboxstore.StateReady {
+		return nil, fmt.Errorf("sandbox container %q is not running", sandboxID)
+	}
 	span.SetAttributes(
 		tracing.Attribute("sandbox.id", sandboxID),
 		tracing.Attribute("sandbox.pid", sandboxPid),
@@ -100,8 +102,7 @@ func (c *criService) CreateContainer(ctx context.Context, r *runtime.CreateConta
 		return nil, err
 	}
 	if err = c.containerNameIndex.Reserve(name, id); err != nil {
-		var resErr *registrar.ReservedErr
-		if errors.As(err, &resErr) {
+		if _, ok := errors.AsType[*registrar.ReservedErr](err); ok {
 			log.G(ctx).WithError(err).Warn("possible concurrent CreateContainer request")
 			return nil, fmt.Errorf("failed to reserve container name %q; check if another CreateContainer request is in progress: %w", name, err)
 		}
@@ -124,52 +125,6 @@ func (c *criService) CreateContainer(ctx context.Context, r *runtime.CreateConta
 		Name:      name,
 		SandboxID: sandboxID,
 		Config:    config,
-	}
-
-	// Check if image is a file. If it is a file it might be a checkpoint archive.
-	checkpointImage, err := func() (bool, error) {
-		if _, err := c.os.Stat(config.GetImage().GetImage()); err == nil {
-			log.G(ctx).Infof(
-				"%q is a file. Assuming it is a checkpoint archive",
-				config.GetImage().GetImage(),
-			)
-			return true, nil
-		}
-		// Check if this is an OCI checkpoint image
-		imageID, err := c.checkIfCheckpointOCIImage(ctx, config.GetImage().GetImage())
-		if err != nil {
-			return false, fmt.Errorf("failed to check if this is a checkpoint image: %w", err)
-		}
-
-		return imageID != "", nil
-	}()
-	if err != nil {
-		return nil, err
-	}
-
-	if checkpointImage {
-		// This might be a checkpoint image. Let's pass
-		// it to the checkpoint code.
-
-		if sandboxConfig.GetMetadata() == nil {
-			return nil, fmt.Errorf("sandboxConfig must not be empty")
-		}
-
-		ctrID, err := c.CRImportCheckpoint(
-			ctx,
-			&meta,
-			&sandbox,
-			sandboxConfig,
-		)
-		if err != nil {
-			log.G(ctx).Errorf("failed to prepare %s for restore %q", ctrID, err)
-			return nil, err
-		}
-		log.G(ctx).Infof("Prepared %s for restore", ctrID)
-
-		return &runtime.CreateContainerResponse{
-			ContainerId: id,
-		}, nil
 	}
 
 	// Prepare container image snapshot. For container, the image should have
@@ -216,7 +171,7 @@ func (c *criService) CreateContainer(ctx context.Context, r *runtime.CreateConta
 type createContainerRequest struct {
 	ctx                   context.Context
 	containerID           string
-	sandbox               *sandbox.Sandbox
+	sandbox               *sandboxstore.Sandbox
 	sandboxID             string
 	imageID               string
 	containerConfig       *runtime.ContainerConfig
@@ -228,7 +183,6 @@ type createContainerRequest struct {
 	containerName         string
 	containerdImage       *containerd.Image
 	meta                  *containerstore.Metadata
-	restore               bool
 	start                 time.Time
 }
 
@@ -345,7 +299,10 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 		}
 	}()
 
-	log.G(r.ctx).Debugf("Container %q spec: %#+v", r.containerID, spew.NewFormatter(spec))
+	logger := log.G(r.ctx)
+	if logger.Logger.IsLevelEnabled(log.DebugLevel) {
+		logger.WithField("spec", spec).Debugf("Container %q spec", r.containerID)
+	}
 
 	// Grab any platform specific snapshotter opts.
 	sOpts, err := snapshotterOpts(r.containerConfig)
@@ -378,7 +335,9 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 		opts = append(opts, customopts.WithVolumes(mountMap, platform))
 	}
 	r.meta.ImageRef = r.imageID
-	if signal := r.containerConfig.GetStopSignal(); signal != runtime.Signal_RUNTIME_DEFAULT {
+	r.meta.ImageDigest = (*r.containerdImage).Target().Digest.String()
+	r.meta.ImageName = (*r.containerdImage).Name()
+	if signal := r.containerConfig.GetStopSignal(); signal != runtime.Signal_SIGNAL_RUNTIME_DEFAULT {
 		stopSignal, err := criSignalToOCIStopSignal(signal)
 		if err != nil {
 			return "", err
@@ -465,7 +424,7 @@ func (c *criService) createContainer(r *createContainerRequest) (_ string, retEr
 		}
 	}()
 
-	status := containerstore.Status{CreatedAt: time.Now().UnixNano(), Restore: r.restore}
+	status := containerstore.Status{CreatedAt: time.Now().UnixNano()}
 	status = copyResourcesToStatus(spec, status)
 	container, err := containerstore.NewContainer(*r.meta,
 		containerstore.WithStatus(status, containerRootDir),
@@ -782,7 +741,7 @@ func (c *criService) buildLinuxSpec(
 	// can override them.
 	env := append([]string{}, imageConfig.Env...)
 	for _, e := range config.GetEnvs() {
-		env = append(env, e.GetKey()+"="+e.GetValue())
+		env = append(env, e.GetKey()+"="+string(e.GetValue()))
 	}
 	specOpts = append(specOpts, oci.WithEnv(env))
 
@@ -1021,7 +980,7 @@ func (c *criService) buildWindowsSpec(
 	// can override them.
 	env := append([]string{}, imageConfig.Env...)
 	for _, e := range config.GetEnvs() {
-		env = append(env, e.GetKey()+"="+e.GetValue())
+		env = append(env, e.GetKey()+"="+string(e.GetValue()))
 	}
 	specOpts = append(specOpts, oci.WithEnv(env))
 
@@ -1110,7 +1069,7 @@ func (c *criService) buildDarwinSpec(
 	// can override them.
 	env := append([]string{}, imageConfig.Env...)
 	for _, e := range config.GetEnvs() {
-		env = append(env, e.GetKey()+"="+e.GetValue())
+		env = append(env, e.GetKey()+"="+string(e.GetValue()))
 	}
 	specOpts = append(specOpts, oci.WithEnv(env))
 

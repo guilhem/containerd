@@ -20256,6 +20256,13 @@ file: {
       type: TYPE_INT64
       json_name: "size"
     }
+    field: {
+      name: "mediaType"
+      number: 3
+      label: LABEL_OPTIONAL
+      type: TYPE_STRING
+      json_name: "mediaType"
+    }
   }
   message_type: {
     name: "ContentDelete"
@@ -20275,7 +20282,7 @@ file: {
     location: {
       span: 16
       span: 0
-      span: 32
+      span: 33
       span: 1
     }
     location: {
@@ -20329,7 +20336,7 @@ file: {
       path: 0
       span: 25
       span: 0
-      span: 28
+      span: 29
       span: 1
     }
     location: {
@@ -20420,17 +20427,56 @@ file: {
     }
     location: {
       path: 4
+      path: 0
+      path: 2
+      path: 2
+      span: 28
+      span: 2
+      span: 23
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      path: 5
+      span: 28
+      span: 2
+      span: 8
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
       path: 1
-      span: 30
+      span: 28
+      span: 9
+      span: 18
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      path: 3
+      span: 28
+      span: 21
+      span: 22
+    }
+    location: {
+      path: 4
+      path: 1
+      span: 31
       span: 0
-      span: 32
+      span: 33
       span: 1
     }
     location: {
       path: 4
       path: 1
       path: 1
-      span: 30
+      span: 31
       span: 8
       span: 21
     }
@@ -20439,7 +20485,7 @@ file: {
       path: 1
       path: 2
       path: 0
-      span: 31
+      span: 32
       span: 2
       span: 20
     }
@@ -20449,7 +20495,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 31
+      span: 32
       span: 2
       span: 8
     }
@@ -20459,7 +20505,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 31
+      span: 32
       span: 9
       span: 15
     }
@@ -20469,7 +20515,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 31
+      span: 32
       span: 18
       span: 19
     }
@@ -22531,6 +22577,23 @@ file: {
       }
     }
   }
+  message_type: {
+    name: "MountCapabilities"
+    field: {
+      name: "types"
+      number: 1
+      label: LABEL_REPEATED
+      type: TYPE_STRING
+      json_name: "types"
+    }
+    field: {
+      name: "transforms"
+      number: 2
+      label: LABEL_REPEATED
+      type: TYPE_STRING
+      json_name: "transforms"
+    }
+  }
   options: {
     go_package: "github.com/containerd/containerd/api/types;types"
   }
@@ -22538,7 +22601,7 @@ file: {
     location: {
       span: 16
       span: 0
-      span: 64
+      span: 88
       span: 1
     }
     location: {
@@ -23122,6 +23185,123 @@ file: {
       path: 3
       path: 3
       span: 63
+      span: 31
+      span: 32
+    }
+    location: {
+      path: 4
+      path: 3
+      span: 76
+      span: 0
+      span: 88
+      span: 1
+      leading_comments: " MountCapabilities describes mount handling that a component performs itself,\n so that the mount manager does not perform it on the component's behalf.\n\n A shim advertises this as an extension of its BootstrapResult. A runtime\n may be able to handle a mount more efficiently than the host can; a VM\n based runtime, for example, may pass a disk image directly to the guest\n instead of having a loop device set up for it on the host.\n\n Mount types and transforms are named with open ended strings, so\n supporting a new one of either is not a change to this protocol.\n"
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 1
+      span: 76
+      span: 8
+      span: 25
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 0
+      span: 79
+      span: 2
+      span: 28
+      leading_comments: " Types are the mount types the sender performs itself, such as \"erofs\" or\n \"loop\". These are base mount types, with any transform prefixes removed.\n"
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 0
+      path: 4
+      span: 79
+      span: 2
+      span: 10
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 0
+      path: 5
+      span: 79
+      span: 11
+      span: 17
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 0
+      path: 1
+      span: 79
+      span: 18
+      span: 23
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 0
+      path: 3
+      span: 79
+      span: 26
+      span: 27
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 1
+      span: 87
+      span: 2
+      span: 33
+      leading_comments: " Transforms are the mount transforms the sender applies itself, such as\n \"format\", \"mkfs\" or \"mkdir\".\n\n A transform is named on its own, without the \"/<mount-type>\" suffix that\n appears in a mount type, so \"format\" covers the mount types \"format/bind\"\n and \"format/mkdir/overlay\" alike.\n"
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 1
+      path: 4
+      span: 87
+      span: 2
+      span: 10
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 1
+      path: 5
+      span: 87
+      span: 11
+      span: 17
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 1
+      path: 1
+      span: 87
+      span: 18
+      span: 28
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 1
+      path: 3
+      span: 87
       span: 31
       span: 32
     }
@@ -25053,6 +25233,14 @@ file: {
       type_name: ".containerd.runtime.bootstrap.v1.BootstrapResult.MetadataEntry"
       json_name: "metadata"
     }
+    field: {
+      name: "extensions"
+      number: 6
+      label: LABEL_REPEATED
+      type: TYPE_MESSAGE
+      type_name: ".containerd.runtime.bootstrap.v1.Extension"
+      json_name: "extensions"
+    }
     nested_type: {
       name: "MetadataEntry"
       field: {
@@ -25119,7 +25307,7 @@ file: {
     location: {
       span: 33
       span: 0
-      span: 129
+      span: 140
       span: 1
     }
     location: {
@@ -25615,7 +25803,7 @@ file: {
       path: 2
       span: 92
       span: 0
-      span: 110
+      span: 121
       span: 1
       leading_comments: " BootstrapResult is returned by shim via stdout after successful startup\n"
     }
@@ -25838,11 +26026,61 @@ file: {
       span: 34
     }
     location: {
+      path: 4
+      path: 2
+      path: 2
+      path: 5
+      span: 120
+      span: 2
+      span: 36
+      leading_comments: " Optional: Typed detail describing what this shim instance is able to\n do, so that containerd can adjust its own behavior. For example, a\n containerd.types.MountCapabilities extension tells containerd which\n mount types and transforms this shim performs itself, so the mount\n manager does not perform them on the shim's behalf.\n\n containerd MUST ignore an extension whose type it does not recognize,\n so a shim may advertise unconditionally and an older daemon will\n simply keep its previous behavior.\n"
+    }
+    location: {
+      path: 4
+      path: 2
+      path: 2
+      path: 5
+      path: 4
+      span: 120
+      span: 2
+      span: 10
+    }
+    location: {
+      path: 4
+      path: 2
+      path: 2
+      path: 5
+      path: 6
+      span: 120
+      span: 11
+      span: 20
+    }
+    location: {
+      path: 4
+      path: 2
+      path: 2
+      path: 5
+      path: 1
+      span: 120
+      span: 21
+      span: 31
+    }
+    location: {
+      path: 4
+      path: 2
+      path: 2
+      path: 5
+      path: 3
+      span: 120
+      span: 34
+      span: 35
+    }
+    location: {
       path: 5
       path: 0
-      span: 115
+      span: 126
       span: 0
-      span: 123
+      span: 134
       span: 1
       leading_comments: " LogLevel defines log verbosity. INFO = 0, more critical levels are\n positive, and more verbose levels are negative. This is an open enum;\n unknown numeric values are preserved on the wire.\n"
     }
@@ -25850,7 +26088,7 @@ file: {
       path: 5
       path: 0
       path: 1
-      span: 115
+      span: 126
       span: 5
       span: 13
     }
@@ -25859,210 +26097,210 @@ file: {
       path: 0
       path: 2
       path: 0
-      span: 116
+      span: 127
       span: 2
-      span: 22
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 0
-      path: 1
-      span: 116
-      span: 2
-      span: 16
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 0
-      path: 2
-      span: 116
-      span: 20
       span: 21
     }
     location: {
       path: 5
       path: 0
       path: 2
-      path: 1
-      span: 117
-      span: 2
-      span: 23
-    }
-    location: {
-      path: 5
       path: 0
-      path: 2
-      path: 1
-      path: 1
-      span: 117
-      span: 2
-      span: 17
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 1
-      path: 2
-      span: 117
-      span: 20
-      span: 22
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 2
-      span: 118
-      span: 2
-      span: 23
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 2
-      path: 1
-      span: 118
-      span: 2
-      span: 17
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 2
-      path: 2
-      span: 118
-      span: 20
-      span: 22
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 3
-      span: 119
-      span: 2
-      span: 22
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 3
-      path: 1
-      span: 119
-      span: 2
-      span: 16
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 3
-      path: 2
-      span: 119
-      span: 20
-      span: 21
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 4
-      span: 120
-      span: 2
-      span: 22
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 4
-      path: 1
-      span: 120
-      span: 2
-      span: 17
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 4
-      path: 2
-      span: 120
-      span: 20
-      span: 21
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 5
-      span: 121
-      span: 2
-      span: 23
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 5
-      path: 1
-      span: 121
-      span: 2
-      span: 17
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 5
-      path: 2
-      span: 121
-      span: 20
-      span: 22
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 6
-      span: 122
-      span: 2
-      span: 23
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 6
-      path: 1
-      span: 122
-      span: 2
-      span: 17
-    }
-    location: {
-      path: 5
-      path: 0
-      path: 2
-      path: 6
-      path: 2
-      span: 122
-      span: 20
-      span: 22
-    }
-    location: {
-      path: 5
       path: 1
       span: 127
-      span: 0
+      span: 2
+      span: 16
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 0
+      path: 2
+      span: 127
+      span: 19
+      span: 20
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 1
+      span: 128
+      span: 2
+      span: 23
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 1
+      path: 1
+      span: 128
+      span: 2
+      span: 17
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 1
+      path: 2
+      span: 128
+      span: 20
+      span: 22
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 2
       span: 129
+      span: 2
+      span: 23
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 2
+      path: 1
+      span: 129
+      span: 2
+      span: 17
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 2
+      path: 2
+      span: 129
+      span: 20
+      span: 22
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 3
+      span: 130
+      span: 2
+      span: 21
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 3
+      path: 1
+      span: 130
+      span: 2
+      span: 16
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 3
+      path: 2
+      span: 130
+      span: 19
+      span: 20
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 4
+      span: 131
+      span: 2
+      span: 22
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 4
+      path: 1
+      span: 131
+      span: 2
+      span: 17
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 4
+      path: 2
+      span: 131
+      span: 20
+      span: 21
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 5
+      span: 132
+      span: 2
+      span: 23
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 5
+      path: 1
+      span: 132
+      span: 2
+      span: 17
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 5
+      path: 2
+      span: 132
+      span: 20
+      span: 22
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 6
+      span: 133
+      span: 2
+      span: 23
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 6
+      path: 1
+      span: 133
+      span: 2
+      span: 17
+    }
+    location: {
+      path: 5
+      path: 0
+      path: 2
+      path: 6
+      path: 2
+      span: 133
+      span: 20
+      span: 22
+    }
+    location: {
+      path: 5
+      path: 1
+      span: 138
+      span: 0
+      span: 140
       span: 1
       leading_comments: " Capability defines optional features that can be negotiated between\n containerd and shims.\n"
     }
@@ -26070,7 +26308,7 @@ file: {
       path: 5
       path: 1
       path: 1
-      span: 127
+      span: 138
       span: 5
       span: 15
     }
@@ -26079,7 +26317,7 @@ file: {
       path: 1
       path: 2
       path: 0
-      span: 128
+      span: 139
       span: 2
       span: 29
     }
@@ -26089,7 +26327,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 128
+      span: 139
       span: 2
       span: 24
     }
@@ -26099,7 +26337,7 @@ file: {
       path: 2
       path: 0
       path: 2
-      span: 128
+      span: 139
       span: 27
       span: 28
     }
@@ -26659,6 +26897,652 @@ file: {
   }
 }
 file: {
+  name: "types/sandbox.proto"
+  package: "containerd.types"
+  dependency: "google/protobuf/any.proto"
+  dependency: "google/protobuf/timestamp.proto"
+  message_type: {
+    name: "Sandbox"
+    field: {
+      name: "sandbox_id"
+      number: 1
+      label: LABEL_OPTIONAL
+      type: TYPE_STRING
+      json_name: "sandboxId"
+    }
+    field: {
+      name: "runtime"
+      number: 2
+      label: LABEL_OPTIONAL
+      type: TYPE_MESSAGE
+      type_name: ".containerd.types.Sandbox.Runtime"
+      json_name: "runtime"
+    }
+    field: {
+      name: "spec"
+      number: 3
+      label: LABEL_OPTIONAL
+      type: TYPE_MESSAGE
+      type_name: ".google.protobuf.Any"
+      json_name: "spec"
+    }
+    field: {
+      name: "labels"
+      number: 4
+      label: LABEL_REPEATED
+      type: TYPE_MESSAGE
+      type_name: ".containerd.types.Sandbox.LabelsEntry"
+      json_name: "labels"
+    }
+    field: {
+      name: "created_at"
+      number: 5
+      label: LABEL_OPTIONAL
+      type: TYPE_MESSAGE
+      type_name: ".google.protobuf.Timestamp"
+      json_name: "createdAt"
+    }
+    field: {
+      name: "updated_at"
+      number: 6
+      label: LABEL_OPTIONAL
+      type: TYPE_MESSAGE
+      type_name: ".google.protobuf.Timestamp"
+      json_name: "updatedAt"
+    }
+    field: {
+      name: "extensions"
+      number: 7
+      label: LABEL_REPEATED
+      type: TYPE_MESSAGE
+      type_name: ".containerd.types.Sandbox.ExtensionsEntry"
+      json_name: "extensions"
+    }
+    field: {
+      name: "sandboxer"
+      number: 10
+      label: LABEL_OPTIONAL
+      type: TYPE_STRING
+      json_name: "sandboxer"
+    }
+    nested_type: {
+      name: "Runtime"
+      field: {
+        name: "name"
+        number: 1
+        label: LABEL_OPTIONAL
+        type: TYPE_STRING
+        json_name: "name"
+      }
+      field: {
+        name: "options"
+        number: 2
+        label: LABEL_OPTIONAL
+        type: TYPE_MESSAGE
+        type_name: ".google.protobuf.Any"
+        json_name: "options"
+      }
+    }
+    nested_type: {
+      name: "LabelsEntry"
+      field: {
+        name: "key"
+        number: 1
+        label: LABEL_OPTIONAL
+        type: TYPE_STRING
+        json_name: "key"
+      }
+      field: {
+        name: "value"
+        number: 2
+        label: LABEL_OPTIONAL
+        type: TYPE_STRING
+        json_name: "value"
+      }
+      options: {
+        map_entry: true
+      }
+    }
+    nested_type: {
+      name: "ExtensionsEntry"
+      field: {
+        name: "key"
+        number: 1
+        label: LABEL_OPTIONAL
+        type: TYPE_STRING
+        json_name: "key"
+      }
+      field: {
+        name: "value"
+        number: 2
+        label: LABEL_OPTIONAL
+        type: TYPE_MESSAGE
+        type_name: ".google.protobuf.Any"
+        json_name: "value"
+      }
+      options: {
+        map_entry: true
+      }
+    }
+  }
+  options: {
+    go_package: "github.com/containerd/containerd/api/types;types"
+  }
+  source_code_info: {
+    location: {
+      span: 16
+      span: 0
+      span: 52
+      span: 1
+    }
+    location: {
+      path: 12
+      span: 16
+      span: 0
+      span: 18
+      leading_detached_comments: "\nCopyright The containerd Authors.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n"
+    }
+    location: {
+      path: 2
+      span: 18
+      span: 0
+      span: 25
+    }
+    location: {
+      path: 3
+      path: 0
+      span: 20
+      span: 0
+      span: 35
+    }
+    location: {
+      path: 3
+      path: 1
+      span: 21
+      span: 0
+      span: 41
+    }
+    location: {
+      path: 8
+      span: 23
+      span: 0
+      span: 71
+    }
+    location: {
+      path: 8
+      path: 11
+      span: 23
+      span: 0
+      span: 71
+    }
+    location: {
+      path: 4
+      path: 0
+      span: 27
+      span: 0
+      span: 52
+      span: 1
+      leading_comments: " Sandbox represents a sandbox metadata object that keeps all info required by controller to\n work with a particular instance.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 1
+      span: 27
+      span: 8
+      span: 15
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      span: 29
+      span: 2
+      span: 24
+      leading_comments: " SandboxID is a unique instance identifier within namespace\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      path: 5
+      span: 29
+      span: 2
+      span: 8
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      path: 1
+      span: 29
+      span: 9
+      span: 19
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      path: 3
+      span: 29
+      span: 22
+      span: 23
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      span: 30
+      span: 2
+      span: 36
+      span: 3
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 1
+      span: 30
+      span: 10
+      span: 17
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 0
+      span: 32
+      span: 4
+      span: 20
+      leading_comments: " Name is the name of the runtime.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 0
+      path: 5
+      span: 32
+      span: 4
+      span: 10
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 0
+      path: 1
+      span: 32
+      span: 11
+      span: 15
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 0
+      path: 3
+      span: 32
+      span: 18
+      span: 19
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 1
+      span: 35
+      span: 4
+      span: 36
+      leading_comments: " Options specify additional runtime initialization options for the shim (this data will be available in StartShim).\n Typically this data expected to be runtime shim implementation specific.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 1
+      path: 6
+      span: 35
+      span: 4
+      span: 23
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 1
+      path: 1
+      span: 35
+      span: 24
+      span: 31
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 3
+      path: 0
+      path: 2
+      path: 1
+      path: 3
+      span: 35
+      span: 34
+      span: 35
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      span: 38
+      span: 2
+      span: 22
+      leading_comments: " Runtime specifies which runtime to use for executing this container.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      path: 6
+      span: 38
+      span: 2
+      span: 9
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      path: 1
+      span: 38
+      span: 10
+      span: 17
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      path: 3
+      span: 38
+      span: 20
+      span: 21
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      span: 41
+      span: 2
+      span: 31
+      leading_comments: " Spec is sandbox configuration (kin of OCI runtime spec), spec's data will be written to a config.json file in the\n bundle directory (similary to OCI spec).\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      path: 6
+      span: 41
+      span: 2
+      span: 21
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      path: 1
+      span: 41
+      span: 22
+      span: 26
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      path: 3
+      span: 41
+      span: 29
+      span: 30
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 3
+      span: 43
+      span: 2
+      span: 33
+      leading_comments: " Labels provides an area to include arbitrary data on containers.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 3
+      path: 6
+      span: 43
+      span: 2
+      span: 21
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 3
+      path: 1
+      span: 43
+      span: 22
+      span: 28
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 3
+      path: 3
+      span: 43
+      span: 31
+      span: 32
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 4
+      span: 45
+      span: 2
+      span: 43
+      leading_comments: " CreatedAt is the time the container was first created.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 4
+      path: 6
+      span: 45
+      span: 2
+      span: 27
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 4
+      path: 1
+      span: 45
+      span: 28
+      span: 38
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 4
+      path: 3
+      span: 45
+      span: 41
+      span: 42
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 5
+      span: 47
+      span: 2
+      span: 43
+      leading_comments: " UpdatedAt is the last time the container was mutated.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 5
+      path: 6
+      span: 47
+      span: 2
+      span: 27
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 5
+      path: 1
+      span: 47
+      span: 28
+      span: 38
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 5
+      path: 3
+      span: 47
+      span: 41
+      span: 42
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 6
+      span: 49
+      span: 2
+      span: 50
+      leading_comments: " Extensions allow clients to provide optional blobs that can be handled by runtime.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 6
+      path: 6
+      span: 49
+      span: 2
+      span: 34
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 6
+      path: 1
+      span: 49
+      span: 35
+      span: 45
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 6
+      path: 3
+      span: 49
+      span: 48
+      span: 49
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 7
+      span: 51
+      span: 2
+      span: 24
+      leading_comments: " Sandboxer is the name of the sandbox controller who manages the sandbox.\n"
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 7
+      path: 5
+      span: 51
+      span: 2
+      span: 8
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 7
+      path: 1
+      span: 51
+      span: 9
+      span: 18
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 7
+      path: 3
+      span: 51
+      span: 21
+      span: 23
+    }
+  }
+  syntax: "proto3"
+  buf_extension: {
+    is_import: false
+    module_info: {
+      name: {
+        remote: "buf.build"
+        owner: "containerd"
+        repository: "api-dev"
+      }
+    }
+    is_syntax_unspecified: false
+  }
+}
+file: {
   name: "runtime/sandbox/v1/sandbox.proto"
   package: "containerd.runtime.sandbox.v1"
   dependency: "google/protobuf/any.proto"
@@ -26666,6 +27550,7 @@ file: {
   dependency: "types/metrics.proto"
   dependency: "types/mount.proto"
   dependency: "types/platform.proto"
+  dependency: "types/sandbox.proto"
   message_type: {
     name: "CreateSandboxRequest"
     field: {
@@ -26830,6 +27715,9 @@ file: {
       type: TYPE_MESSAGE
       type_name: ".google.protobuf.Any"
       json_name: "resources"
+      options: {
+        deprecated: true
+      }
     }
     field: {
       name: "annotations"
@@ -26838,6 +27726,24 @@ file: {
       type: TYPE_MESSAGE
       type_name: ".containerd.runtime.sandbox.v1.UpdateSandboxRequest.AnnotationsEntry"
       json_name: "annotations"
+      options: {
+        deprecated: true
+      }
+    }
+    field: {
+      name: "sandbox"
+      number: 4
+      label: LABEL_OPTIONAL
+      type: TYPE_MESSAGE
+      type_name: ".containerd.types.Sandbox"
+      json_name: "sandbox"
+    }
+    field: {
+      name: "fields"
+      number: 5
+      label: LABEL_REPEATED
+      type: TYPE_STRING
+      json_name: "fields"
     }
     nested_type: {
       name: "AnnotationsEntry"
@@ -27078,6 +27984,11 @@ file: {
       input_type: ".containerd.runtime.sandbox.v1.SandboxMetricsRequest"
       output_type: ".containerd.runtime.sandbox.v1.SandboxMetricsResponse"
     }
+    method: {
+      name: "UpdateSandbox"
+      input_type: ".containerd.runtime.sandbox.v1.UpdateSandboxRequest"
+      output_type: ".containerd.runtime.sandbox.v1.UpdateSandboxResponse"
+    }
   }
   options: {
     go_package: "github.com/containerd/containerd/api/runtime/sandbox/v1;sandbox"
@@ -27086,7 +27997,7 @@ file: {
     location: {
       span: 16
       span: 0
-      span: 148
+      span: 164
       span: 1
     }
     location: {
@@ -27138,24 +28049,31 @@ file: {
       span: 30
     }
     location: {
+      path: 3
+      path: 5
+      span: 25
+      span: 0
+      span: 29
+    }
+    location: {
       path: 8
-      span: 26
+      span: 27
       span: 0
       span: 86
     }
     location: {
       path: 8
       path: 11
-      span: 26
+      span: 27
       span: 0
       span: 86
     }
     location: {
       path: 6
       path: 0
-      span: 31
+      span: 32
       span: 0
-      span: 60
+      span: 68
       span: 1
       leading_comments: " Sandbox is an optional interface that shim may implement to support sandboxes environments.\n A typical example of sandbox is microVM or pause container - an entity that groups containers and/or\n holds resources relevant for this group.\n"
     }
@@ -27163,7 +28081,7 @@ file: {
       path: 6
       path: 0
       path: 1
-      span: 31
+      span: 32
       span: 8
       span: 15
     }
@@ -27172,7 +28090,7 @@ file: {
       path: 0
       path: 2
       path: 0
-      span: 34
+      span: 35
       span: 2
       span: 74
       leading_comments: " CreateSandbox will be called right after sandbox shim instance launched.\n It is a good place to initialize sandbox environment.\n"
@@ -27183,7 +28101,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 34
+      span: 35
       span: 6
       span: 19
     }
@@ -27193,7 +28111,7 @@ file: {
       path: 2
       path: 0
       path: 2
-      span: 34
+      span: 35
       span: 20
       span: 40
     }
@@ -27203,7 +28121,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 34
+      span: 35
       span: 51
       span: 72
     }
@@ -27212,7 +28130,7 @@ file: {
       path: 0
       path: 2
       path: 1
-      span: 37
+      span: 38
       span: 2
       span: 71
       leading_comments: " StartSandbox will start a previously created sandbox.\n"
@@ -27223,7 +28141,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 37
+      span: 38
       span: 6
       span: 18
     }
@@ -27233,7 +28151,7 @@ file: {
       path: 2
       path: 1
       path: 2
-      span: 37
+      span: 38
       span: 19
       span: 38
     }
@@ -27243,7 +28161,7 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 37
+      span: 38
       span: 49
       span: 69
     }
@@ -27252,7 +28170,7 @@ file: {
       path: 0
       path: 2
       path: 2
-      span: 41
+      span: 42
       span: 2
       span: 59
       leading_comments: " Platform queries the platform the sandbox is going to run containers on.\n containerd will use this to generate a proper OCI spec.\n"
@@ -27263,7 +28181,7 @@ file: {
       path: 2
       path: 2
       path: 1
-      span: 41
+      span: 42
       span: 6
       span: 14
     }
@@ -27273,7 +28191,7 @@ file: {
       path: 2
       path: 2
       path: 2
-      span: 41
+      span: 42
       span: 15
       span: 30
     }
@@ -27283,7 +28201,7 @@ file: {
       path: 2
       path: 2
       path: 3
-      span: 41
+      span: 42
       span: 41
       span: 57
     }
@@ -27292,7 +28210,7 @@ file: {
       path: 0
       path: 2
       path: 3
-      span: 44
+      span: 45
       span: 2
       span: 68
       leading_comments: " StopSandbox will stop existing sandbox instance\n"
@@ -27303,7 +28221,7 @@ file: {
       path: 2
       path: 3
       path: 1
-      span: 44
+      span: 45
       span: 6
       span: 17
     }
@@ -27313,7 +28231,7 @@ file: {
       path: 2
       path: 3
       path: 2
-      span: 44
+      span: 45
       span: 18
       span: 36
     }
@@ -27323,7 +28241,7 @@ file: {
       path: 2
       path: 3
       path: 3
-      span: 44
+      span: 45
       span: 47
       span: 66
     }
@@ -27332,7 +28250,7 @@ file: {
       path: 0
       path: 2
       path: 4
-      span: 47
+      span: 48
       span: 2
       span: 68
       leading_comments: " WaitSandbox blocks until sandbox exits.\n"
@@ -27343,7 +28261,7 @@ file: {
       path: 2
       path: 4
       path: 1
-      span: 47
+      span: 48
       span: 6
       span: 17
     }
@@ -27353,7 +28271,7 @@ file: {
       path: 2
       path: 4
       path: 2
-      span: 47
+      span: 48
       span: 18
       span: 36
     }
@@ -27363,7 +28281,7 @@ file: {
       path: 2
       path: 4
       path: 3
-      span: 47
+      span: 48
       span: 47
       span: 66
     }
@@ -27372,7 +28290,7 @@ file: {
       path: 0
       path: 2
       path: 5
-      span: 50
+      span: 51
       span: 2
       span: 74
       leading_comments: " SandboxStatus will return current status of the running sandbox instance\n"
@@ -27383,7 +28301,7 @@ file: {
       path: 2
       path: 5
       path: 1
-      span: 50
+      span: 51
       span: 6
       span: 19
     }
@@ -27393,7 +28311,7 @@ file: {
       path: 2
       path: 5
       path: 2
-      span: 50
+      span: 51
       span: 20
       span: 40
     }
@@ -27403,7 +28321,7 @@ file: {
       path: 2
       path: 5
       path: 3
-      span: 50
+      span: 51
       span: 51
       span: 72
     }
@@ -27412,7 +28330,7 @@ file: {
       path: 0
       path: 2
       path: 6
-      span: 53
+      span: 54
       span: 2
       span: 54
       leading_comments: " PingSandbox is a lightweight API call to check whether sandbox alive.\n"
@@ -27423,7 +28341,7 @@ file: {
       path: 2
       path: 6
       path: 1
-      span: 53
+      span: 54
       span: 6
       span: 17
     }
@@ -27433,7 +28351,7 @@ file: {
       path: 2
       path: 6
       path: 2
-      span: 53
+      span: 54
       span: 18
       span: 29
     }
@@ -27443,7 +28361,7 @@ file: {
       path: 2
       path: 6
       path: 3
-      span: 53
+      span: 54
       span: 40
       span: 52
     }
@@ -27452,7 +28370,7 @@ file: {
       path: 0
       path: 2
       path: 7
-      span: 56
+      span: 57
       span: 2
       span: 80
       leading_comments: " ShutdownSandbox must shutdown shim instance.\n"
@@ -27463,7 +28381,7 @@ file: {
       path: 2
       path: 7
       path: 1
-      span: 56
+      span: 57
       span: 6
       span: 21
     }
@@ -27473,7 +28391,7 @@ file: {
       path: 2
       path: 7
       path: 2
-      span: 56
+      span: 57
       span: 22
       span: 44
     }
@@ -27483,7 +28401,7 @@ file: {
       path: 2
       path: 7
       path: 3
-      span: 56
+      span: 57
       span: 55
       span: 78
     }
@@ -27492,7 +28410,7 @@ file: {
       path: 0
       path: 2
       path: 8
-      span: 59
+      span: 60
       span: 2
       span: 77
       leading_comments: " SandboxMetrics retrieves metrics about a sandbox instance.\n"
@@ -27503,7 +28421,7 @@ file: {
       path: 2
       path: 8
       path: 1
-      span: 59
+      span: 60
       span: 6
       span: 20
     }
@@ -27513,7 +28431,7 @@ file: {
       path: 2
       path: 8
       path: 2
-      span: 59
+      span: 60
       span: 21
       span: 42
     }
@@ -27523,23 +28441,63 @@ file: {
       path: 2
       path: 8
       path: 3
-      span: 59
+      span: 60
       span: 53
       span: 75
     }
     location: {
+      path: 6
+      path: 0
+      path: 2
+      path: 9
+      span: 67
+      span: 2
+      span: 74
+      leading_comments: " UpdateSandbox applies an update of the sandbox metadata object to a running\n sandbox instance (for example a pod level resource resize).\n Implementing this RPC is optional: a shim that does not support updates MUST\n return a `github.com/containerd/errdefs.ErrNotImplemented` error (gRPC\n `codes.Unimplemented`), which callers are expected to tolerate.\n"
+    }
+    location: {
+      path: 6
+      path: 0
+      path: 2
+      path: 9
+      path: 1
+      span: 67
+      span: 6
+      span: 19
+    }
+    location: {
+      path: 6
+      path: 0
+      path: 2
+      path: 9
+      path: 2
+      span: 67
+      span: 20
+      span: 40
+    }
+    location: {
+      path: 6
+      path: 0
+      path: 2
+      path: 9
+      path: 3
+      span: 67
+      span: 51
+      span: 72
+    }
+    location: {
       path: 4
       path: 0
-      span: 62
+      span: 70
       span: 0
-      span: 69
+      span: 77
       span: 1
     }
     location: {
       path: 4
       path: 0
       path: 1
-      span: 62
+      span: 70
       span: 8
       span: 28
     }
@@ -27548,7 +28506,7 @@ file: {
       path: 0
       path: 2
       path: 0
-      span: 63
+      span: 71
       span: 2
       span: 24
     }
@@ -27558,7 +28516,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 63
+      span: 71
       span: 2
       span: 8
     }
@@ -27568,7 +28526,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 63
+      span: 71
       span: 9
       span: 19
     }
@@ -27578,7 +28536,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 63
+      span: 71
       span: 22
       span: 23
     }
@@ -27587,7 +28545,7 @@ file: {
       path: 0
       path: 2
       path: 1
-      span: 64
+      span: 72
       span: 2
       span: 25
     }
@@ -27597,7 +28555,7 @@ file: {
       path: 2
       path: 1
       path: 5
-      span: 64
+      span: 72
       span: 2
       span: 8
     }
@@ -27607,7 +28565,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 64
+      span: 72
       span: 9
       span: 20
     }
@@ -27617,7 +28575,7 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 64
+      span: 72
       span: 23
       span: 24
     }
@@ -27626,7 +28584,7 @@ file: {
       path: 0
       path: 2
       path: 2
-      span: 65
+      span: 73
       span: 2
       span: 45
     }
@@ -27636,7 +28594,7 @@ file: {
       path: 2
       path: 2
       path: 4
-      span: 65
+      span: 73
       span: 2
       span: 10
     }
@@ -27646,7 +28604,7 @@ file: {
       path: 2
       path: 2
       path: 6
-      span: 65
+      span: 73
       span: 11
       span: 33
     }
@@ -27656,7 +28614,7 @@ file: {
       path: 2
       path: 2
       path: 1
-      span: 65
+      span: 73
       span: 34
       span: 40
     }
@@ -27666,7 +28624,7 @@ file: {
       path: 2
       path: 2
       path: 3
-      span: 65
+      span: 73
       span: 43
       span: 44
     }
@@ -27675,7 +28633,7 @@ file: {
       path: 0
       path: 2
       path: 3
-      span: 66
+      span: 74
       span: 2
       span: 34
     }
@@ -27685,7 +28643,7 @@ file: {
       path: 2
       path: 3
       path: 6
-      span: 66
+      span: 74
       span: 2
       span: 21
     }
@@ -27695,7 +28653,7 @@ file: {
       path: 2
       path: 3
       path: 1
-      span: 66
+      span: 74
       span: 22
       span: 29
     }
@@ -27705,7 +28663,7 @@ file: {
       path: 2
       path: 3
       path: 3
-      span: 66
+      span: 74
       span: 32
       span: 33
     }
@@ -27714,7 +28672,7 @@ file: {
       path: 0
       path: 2
       path: 4
-      span: 67
+      span: 75
       span: 2
       span: 24
     }
@@ -27724,7 +28682,7 @@ file: {
       path: 2
       path: 4
       path: 5
-      span: 67
+      span: 75
       span: 2
       span: 8
     }
@@ -27734,7 +28692,7 @@ file: {
       path: 2
       path: 4
       path: 1
-      span: 67
+      span: 75
       span: 9
       span: 19
     }
@@ -27744,7 +28702,7 @@ file: {
       path: 2
       path: 4
       path: 3
-      span: 67
+      span: 75
       span: 22
       span: 23
     }
@@ -27753,7 +28711,7 @@ file: {
       path: 0
       path: 2
       path: 5
-      span: 68
+      span: 76
       span: 2
       span: 38
     }
@@ -27763,7 +28721,7 @@ file: {
       path: 2
       path: 5
       path: 6
-      span: 68
+      span: 76
       span: 2
       span: 21
     }
@@ -27773,7 +28731,7 @@ file: {
       path: 2
       path: 5
       path: 1
-      span: 68
+      span: 76
       span: 22
       span: 33
     }
@@ -27783,14 +28741,14 @@ file: {
       path: 2
       path: 5
       path: 3
-      span: 68
+      span: 76
       span: 36
       span: 37
     }
     location: {
       path: 4
       path: 1
-      span: 71
+      span: 79
       span: 0
       span: 32
     }
@@ -27798,23 +28756,23 @@ file: {
       path: 4
       path: 1
       path: 1
-      span: 71
+      span: 79
       span: 8
       span: 29
     }
     location: {
       path: 4
       path: 2
-      span: 73
+      span: 81
       span: 0
-      span: 75
+      span: 83
       span: 1
     }
     location: {
       path: 4
       path: 2
       path: 1
-      span: 73
+      span: 81
       span: 8
       span: 27
     }
@@ -27823,7 +28781,7 @@ file: {
       path: 2
       path: 2
       path: 0
-      span: 74
+      span: 82
       span: 2
       span: 24
     }
@@ -27833,7 +28791,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 74
+      span: 82
       span: 2
       span: 8
     }
@@ -27843,7 +28801,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 74
+      span: 82
       span: 9
       span: 19
     }
@@ -27853,23 +28811,23 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 74
+      span: 82
       span: 22
       span: 23
     }
     location: {
       path: 4
       path: 3
-      span: 77
+      span: 85
       span: 0
-      span: 81
+      span: 89
       span: 1
     }
     location: {
       path: 4
       path: 3
       path: 1
-      span: 77
+      span: 85
       span: 8
       span: 28
     }
@@ -27878,7 +28836,7 @@ file: {
       path: 3
       path: 2
       path: 0
-      span: 78
+      span: 86
       span: 2
       span: 17
     }
@@ -27888,7 +28846,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 78
+      span: 86
       span: 2
       span: 8
     }
@@ -27898,7 +28856,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 78
+      span: 86
       span: 9
       span: 12
     }
@@ -27908,7 +28866,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 78
+      span: 86
       span: 15
       span: 16
     }
@@ -27917,7 +28875,7 @@ file: {
       path: 3
       path: 2
       path: 1
-      span: 79
+      span: 87
       span: 2
       span: 43
     }
@@ -27927,7 +28885,7 @@ file: {
       path: 2
       path: 1
       path: 6
-      span: 79
+      span: 87
       span: 2
       span: 27
     }
@@ -27937,7 +28895,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 79
+      span: 87
       span: 28
       span: 38
     }
@@ -27947,7 +28905,7 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 79
+      span: 87
       span: 41
       span: 42
     }
@@ -27956,7 +28914,7 @@ file: {
       path: 3
       path: 2
       path: 2
-      span: 80
+      span: 88
       span: 2
       span: 31
     }
@@ -27966,7 +28924,7 @@ file: {
       path: 2
       path: 2
       path: 6
-      span: 80
+      span: 88
       span: 2
       span: 21
     }
@@ -27976,7 +28934,7 @@ file: {
       path: 2
       path: 2
       path: 1
-      span: 80
+      span: 88
       span: 22
       span: 26
     }
@@ -27986,23 +28944,23 @@ file: {
       path: 2
       path: 2
       path: 3
-      span: 80
+      span: 88
       span: 29
       span: 30
     }
     location: {
       path: 4
       path: 4
-      span: 83
+      span: 91
       span: 0
-      span: 85
+      span: 93
       span: 1
     }
     location: {
       path: 4
       path: 4
       path: 1
-      span: 83
+      span: 91
       span: 8
       span: 23
     }
@@ -28011,7 +28969,7 @@ file: {
       path: 4
       path: 2
       path: 0
-      span: 84
+      span: 92
       span: 2
       span: 24
     }
@@ -28021,7 +28979,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 84
+      span: 92
       span: 2
       span: 8
     }
@@ -28031,7 +28989,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 84
+      span: 92
       span: 9
       span: 19
     }
@@ -28041,23 +28999,23 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 84
+      span: 92
       span: 22
       span: 23
     }
     location: {
       path: 4
       path: 5
-      span: 87
+      span: 95
       span: 0
-      span: 89
+      span: 97
       span: 1
     }
     location: {
       path: 4
       path: 5
       path: 1
-      span: 87
+      span: 95
       span: 8
       span: 24
     }
@@ -28066,7 +29024,7 @@ file: {
       path: 5
       path: 2
       path: 0
-      span: 88
+      span: 96
       span: 2
       span: 41
     }
@@ -28076,7 +29034,7 @@ file: {
       path: 2
       path: 0
       path: 6
-      span: 88
+      span: 96
       span: 2
       span: 27
     }
@@ -28086,7 +29044,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 88
+      span: 96
       span: 28
       span: 36
     }
@@ -28096,23 +29054,23 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 88
+      span: 96
       span: 39
       span: 40
     }
     location: {
       path: 4
       path: 6
-      span: 91
+      span: 99
       span: 0
-      span: 94
+      span: 102
       span: 1
     }
     location: {
       path: 4
       path: 6
       path: 1
-      span: 91
+      span: 99
       span: 8
       span: 26
     }
@@ -28121,7 +29079,7 @@ file: {
       path: 6
       path: 2
       path: 0
-      span: 92
+      span: 100
       span: 2
       span: 24
     }
@@ -28131,7 +29089,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 92
+      span: 100
       span: 2
       span: 8
     }
@@ -28141,7 +29099,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 92
+      span: 100
       span: 9
       span: 19
     }
@@ -28151,7 +29109,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 92
+      span: 100
       span: 22
       span: 23
     }
@@ -28160,7 +29118,7 @@ file: {
       path: 6
       path: 2
       path: 1
-      span: 93
+      span: 101
       span: 2
       span: 26
     }
@@ -28170,7 +29128,7 @@ file: {
       path: 2
       path: 1
       path: 5
-      span: 93
+      span: 101
       span: 2
       span: 8
     }
@@ -28180,7 +29138,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 93
+      span: 101
       span: 9
       span: 21
     }
@@ -28190,14 +29148,14 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 93
+      span: 101
       span: 24
       span: 25
     }
     location: {
       path: 4
       path: 7
-      span: 96
+      span: 104
       span: 0
       span: 30
     }
@@ -28205,23 +29163,23 @@ file: {
       path: 4
       path: 7
       path: 1
-      span: 96
+      span: 104
       span: 8
       span: 27
     }
     location: {
       path: 4
       path: 8
-      span: 98
+      span: 106
       span: 0
-      span: 102
+      span: 118
       span: 1
     }
     location: {
       path: 4
       path: 8
       path: 1
-      span: 98
+      span: 106
       span: 8
       span: 28
     }
@@ -28230,7 +29188,7 @@ file: {
       path: 8
       path: 2
       path: 0
-      span: 99
+      span: 107
       span: 2
       span: 24
     }
@@ -28240,7 +29198,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 99
+      span: 107
       span: 2
       span: 8
     }
@@ -28250,7 +29208,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 99
+      span: 107
       span: 9
       span: 19
     }
@@ -28260,7 +29218,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 99
+      span: 107
       span: 22
       span: 23
     }
@@ -28269,9 +29227,10 @@ file: {
       path: 8
       path: 2
       path: 1
-      span: 100
+      span: 109
       span: 2
-      span: 36
+      span: 56
+      leading_comments: " Deprecated: not set by containerd, use `sandbox` instead.\n"
     }
     location: {
       path: 4
@@ -28279,7 +29238,7 @@ file: {
       path: 2
       path: 1
       path: 6
-      span: 100
+      span: 109
       span: 2
       span: 21
     }
@@ -28289,7 +29248,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 100
+      span: 109
       span: 22
       span: 31
     }
@@ -28299,7 +29258,7 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 100
+      span: 109
       span: 34
       span: 35
     }
@@ -28307,10 +29266,32 @@ file: {
       path: 4
       path: 8
       path: 2
+      path: 1
+      path: 8
+      span: 109
+      span: 36
+      span: 55
+    }
+    location: {
+      path: 4
+      path: 8
       path: 2
-      span: 101
+      path: 1
+      path: 8
+      path: 3
+      span: 109
+      span: 37
+      span: 54
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 2
+      span: 111
       span: 2
-      span: 38
+      span: 58
+      leading_comments: " Deprecated: not set by containerd, use `sandbox` instead.\n"
     }
     location: {
       path: 4
@@ -28318,7 +29299,7 @@ file: {
       path: 2
       path: 2
       path: 6
-      span: 101
+      span: 111
       span: 2
       span: 21
     }
@@ -28328,7 +29309,7 @@ file: {
       path: 2
       path: 2
       path: 1
-      span: 101
+      span: 111
       span: 22
       span: 33
     }
@@ -28338,23 +29319,134 @@ file: {
       path: 2
       path: 2
       path: 3
-      span: 101
+      span: 111
       span: 36
       span: 37
     }
     location: {
       path: 4
+      path: 8
+      path: 2
+      path: 2
+      path: 8
+      span: 111
+      span: 38
+      span: 57
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 2
+      path: 8
+      path: 3
+      span: 111
+      span: 39
+      span: 56
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 3
+      span: 114
+      span: 2
+      span: 39
+      leading_comments: " Sandbox is the updated sandbox metadata object as stored by containerd,\n including its labels, spec and extensions.\n"
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 3
+      path: 6
+      span: 114
+      span: 2
+      span: 26
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 3
+      path: 1
+      span: 114
+      span: 27
+      span: 34
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 3
+      path: 3
+      span: 114
+      span: 37
+      span: 38
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 4
+      span: 117
+      span: 2
+      span: 29
+      leading_comments: " Fields are the fieldpaths of `sandbox` that have been updated.\n An empty list means the whole object should be considered updated.\n"
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 4
+      path: 4
+      span: 117
+      span: 2
+      span: 10
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 4
+      path: 5
+      span: 117
+      span: 11
+      span: 17
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 4
+      path: 1
+      span: 117
+      span: 18
+      span: 24
+    }
+    location: {
+      path: 4
+      path: 8
+      path: 2
+      path: 4
+      path: 3
+      span: 117
+      span: 27
+      span: 28
+    }
+    location: {
+      path: 4
       path: 9
-      span: 104
+      span: 120
       span: 0
-      span: 106
+      span: 122
       span: 1
     }
     location: {
       path: 4
       path: 9
       path: 1
-      span: 104
+      span: 120
       span: 8
       span: 26
     }
@@ -28363,7 +29455,7 @@ file: {
       path: 9
       path: 2
       path: 0
-      span: 105
+      span: 121
       span: 2
       span: 24
     }
@@ -28373,7 +29465,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 105
+      span: 121
       span: 2
       span: 8
     }
@@ -28383,7 +29475,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 105
+      span: 121
       span: 9
       span: 19
     }
@@ -28393,23 +29485,23 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 105
+      span: 121
       span: 22
       span: 23
     }
     location: {
       path: 4
       path: 10
-      span: 108
+      span: 124
       span: 0
-      span: 111
+      span: 127
       span: 1
     }
     location: {
       path: 4
       path: 10
       path: 1
-      span: 108
+      span: 124
       span: 8
       span: 27
     }
@@ -28418,7 +29510,7 @@ file: {
       path: 10
       path: 2
       path: 0
-      span: 109
+      span: 125
       span: 2
       span: 25
     }
@@ -28428,7 +29520,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 109
+      span: 125
       span: 2
       span: 8
     }
@@ -28438,7 +29530,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 109
+      span: 125
       span: 9
       span: 20
     }
@@ -28448,7 +29540,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 109
+      span: 125
       span: 23
       span: 24
     }
@@ -28457,7 +29549,7 @@ file: {
       path: 10
       path: 2
       path: 1
-      span: 110
+      span: 126
       span: 2
       span: 42
     }
@@ -28467,7 +29559,7 @@ file: {
       path: 2
       path: 1
       path: 6
-      span: 110
+      span: 126
       span: 2
       span: 27
     }
@@ -28477,7 +29569,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 110
+      span: 126
       span: 28
       span: 37
     }
@@ -28487,14 +29579,14 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 110
+      span: 126
       span: 40
       span: 41
     }
     location: {
       path: 4
       path: 11
-      span: 113
+      span: 129
       span: 0
       span: 32
     }
@@ -28502,23 +29594,23 @@ file: {
       path: 4
       path: 11
       path: 1
-      span: 113
+      span: 129
       span: 8
       span: 29
     }
     location: {
       path: 4
       path: 12
-      span: 115
+      span: 131
       span: 0
-      span: 118
+      span: 134
       span: 1
     }
     location: {
       path: 4
       path: 12
       path: 1
-      span: 115
+      span: 131
       span: 8
       span: 28
     }
@@ -28527,7 +29619,7 @@ file: {
       path: 12
       path: 2
       path: 0
-      span: 116
+      span: 132
       span: 2
       span: 24
     }
@@ -28537,7 +29629,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 116
+      span: 132
       span: 2
       span: 8
     }
@@ -28547,7 +29639,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 116
+      span: 132
       span: 9
       span: 19
     }
@@ -28557,7 +29649,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 116
+      span: 132
       span: 22
       span: 23
     }
@@ -28566,7 +29658,7 @@ file: {
       path: 12
       path: 2
       path: 1
-      span: 117
+      span: 133
       span: 2
       span: 19
     }
@@ -28576,7 +29668,7 @@ file: {
       path: 2
       path: 1
       path: 5
-      span: 117
+      span: 133
       span: 2
       span: 6
     }
@@ -28586,7 +29678,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 117
+      span: 133
       span: 7
       span: 14
     }
@@ -28596,23 +29688,23 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 117
+      span: 133
       span: 17
       span: 18
     }
     location: {
       path: 4
       path: 13
-      span: 120
+      span: 136
       span: 0
-      span: 128
+      span: 144
       span: 1
     }
     location: {
       path: 4
       path: 13
       path: 1
-      span: 120
+      span: 136
       span: 8
       span: 29
     }
@@ -28621,7 +29713,7 @@ file: {
       path: 13
       path: 2
       path: 0
-      span: 121
+      span: 137
       span: 2
       span: 24
     }
@@ -28631,7 +29723,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 121
+      span: 137
       span: 2
       span: 8
     }
@@ -28641,7 +29733,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 121
+      span: 137
       span: 9
       span: 19
     }
@@ -28651,7 +29743,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 121
+      span: 137
       span: 22
       span: 23
     }
@@ -28660,7 +29752,7 @@ file: {
       path: 13
       path: 2
       path: 1
-      span: 122
+      span: 138
       span: 2
       span: 17
     }
@@ -28670,7 +29762,7 @@ file: {
       path: 2
       path: 1
       path: 5
-      span: 122
+      span: 138
       span: 2
       span: 8
     }
@@ -28680,7 +29772,7 @@ file: {
       path: 2
       path: 1
       path: 1
-      span: 122
+      span: 138
       span: 9
       span: 12
     }
@@ -28690,7 +29782,7 @@ file: {
       path: 2
       path: 1
       path: 3
-      span: 122
+      span: 138
       span: 15
       span: 16
     }
@@ -28699,7 +29791,7 @@ file: {
       path: 13
       path: 2
       path: 2
-      span: 123
+      span: 139
       span: 2
       span: 19
     }
@@ -28709,7 +29801,7 @@ file: {
       path: 2
       path: 2
       path: 5
-      span: 123
+      span: 139
       span: 2
       span: 8
     }
@@ -28719,7 +29811,7 @@ file: {
       path: 2
       path: 2
       path: 1
-      span: 123
+      span: 139
       span: 9
       span: 14
     }
@@ -28729,7 +29821,7 @@ file: {
       path: 2
       path: 2
       path: 3
-      span: 123
+      span: 139
       span: 17
       span: 18
     }
@@ -28738,7 +29830,7 @@ file: {
       path: 13
       path: 2
       path: 3
-      span: 124
+      span: 140
       span: 2
       span: 31
     }
@@ -28748,7 +29840,7 @@ file: {
       path: 2
       path: 3
       path: 6
-      span: 124
+      span: 140
       span: 2
       span: 21
     }
@@ -28758,7 +29850,7 @@ file: {
       path: 2
       path: 3
       path: 1
-      span: 124
+      span: 140
       span: 22
       span: 26
     }
@@ -28768,7 +29860,7 @@ file: {
       path: 2
       path: 3
       path: 3
-      span: 124
+      span: 140
       span: 29
       span: 30
     }
@@ -28777,7 +29869,7 @@ file: {
       path: 13
       path: 2
       path: 4
-      span: 125
+      span: 141
       span: 2
       span: 43
     }
@@ -28787,7 +29879,7 @@ file: {
       path: 2
       path: 4
       path: 6
-      span: 125
+      span: 141
       span: 2
       span: 27
     }
@@ -28797,7 +29889,7 @@ file: {
       path: 2
       path: 4
       path: 1
-      span: 125
+      span: 141
       span: 28
       span: 38
     }
@@ -28807,7 +29899,7 @@ file: {
       path: 2
       path: 4
       path: 3
-      span: 125
+      span: 141
       span: 41
       span: 42
     }
@@ -28816,7 +29908,7 @@ file: {
       path: 13
       path: 2
       path: 5
-      span: 126
+      span: 142
       span: 2
       span: 42
     }
@@ -28826,7 +29918,7 @@ file: {
       path: 2
       path: 5
       path: 6
-      span: 126
+      span: 142
       span: 2
       span: 27
     }
@@ -28836,7 +29928,7 @@ file: {
       path: 2
       path: 5
       path: 1
-      span: 126
+      span: 142
       span: 28
       span: 37
     }
@@ -28846,7 +29938,7 @@ file: {
       path: 2
       path: 5
       path: 3
-      span: 126
+      span: 142
       span: 40
       span: 41
     }
@@ -28855,7 +29947,7 @@ file: {
       path: 13
       path: 2
       path: 6
-      span: 127
+      span: 143
       span: 2
       span: 32
     }
@@ -28865,7 +29957,7 @@ file: {
       path: 2
       path: 6
       path: 6
-      span: 127
+      span: 143
       span: 2
       span: 21
     }
@@ -28875,7 +29967,7 @@ file: {
       path: 2
       path: 6
       path: 1
-      span: 127
+      span: 143
       span: 22
       span: 27
     }
@@ -28885,23 +29977,23 @@ file: {
       path: 2
       path: 6
       path: 3
-      span: 127
+      span: 143
       span: 30
       span: 31
     }
     location: {
       path: 4
       path: 14
-      span: 130
+      span: 146
       span: 0
-      span: 132
+      span: 148
       span: 1
     }
     location: {
       path: 4
       path: 14
       path: 1
-      span: 130
+      span: 146
       span: 8
       span: 19
     }
@@ -28910,7 +30002,7 @@ file: {
       path: 14
       path: 2
       path: 0
-      span: 131
+      span: 147
       span: 2
       span: 24
     }
@@ -28920,7 +30012,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 131
+      span: 147
       span: 2
       span: 8
     }
@@ -28930,7 +30022,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 131
+      span: 147
       span: 9
       span: 19
     }
@@ -28940,14 +30032,14 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 131
+      span: 147
       span: 22
       span: 23
     }
     location: {
       path: 4
       path: 15
-      span: 134
+      span: 150
       span: 0
       span: 23
     }
@@ -28955,23 +30047,23 @@ file: {
       path: 4
       path: 15
       path: 1
-      span: 134
+      span: 150
       span: 8
       span: 20
     }
     location: {
       path: 4
       path: 16
-      span: 136
+      span: 152
       span: 0
-      span: 138
+      span: 154
       span: 1
     }
     location: {
       path: 4
       path: 16
       path: 1
-      span: 136
+      span: 152
       span: 8
       span: 30
     }
@@ -28980,7 +30072,7 @@ file: {
       path: 16
       path: 2
       path: 0
-      span: 137
+      span: 153
       span: 2
       span: 24
     }
@@ -28990,7 +30082,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 137
+      span: 153
       span: 2
       span: 8
     }
@@ -29000,7 +30092,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 137
+      span: 153
       span: 9
       span: 19
     }
@@ -29010,14 +30102,14 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 137
+      span: 153
       span: 22
       span: 23
     }
     location: {
       path: 4
       path: 17
-      span: 140
+      span: 156
       span: 0
       span: 34
     }
@@ -29025,23 +30117,23 @@ file: {
       path: 4
       path: 17
       path: 1
-      span: 140
+      span: 156
       span: 8
       span: 31
     }
     location: {
       path: 4
       path: 18
-      span: 142
+      span: 158
       span: 0
-      span: 144
+      span: 160
       span: 1
     }
     location: {
       path: 4
       path: 18
       path: 1
-      span: 142
+      span: 158
       span: 8
       span: 29
     }
@@ -29050,7 +30142,7 @@ file: {
       path: 18
       path: 2
       path: 0
-      span: 143
+      span: 159
       span: 2
       span: 24
     }
@@ -29060,7 +30152,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 143
+      span: 159
       span: 2
       span: 8
     }
@@ -29070,7 +30162,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 143
+      span: 159
       span: 9
       span: 19
     }
@@ -29080,23 +30172,23 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 143
+      span: 159
       span: 22
       span: 23
     }
     location: {
       path: 4
       path: 19
-      span: 146
+      span: 162
       span: 0
-      span: 148
+      span: 164
       span: 1
     }
     location: {
       path: 4
       path: 19
       path: 1
-      span: 146
+      span: 162
       span: 8
       span: 30
     }
@@ -29105,7 +30197,7 @@ file: {
       path: 19
       path: 2
       path: 0
-      span: 147
+      span: 163
       span: 2
       span: 38
     }
@@ -29115,7 +30207,7 @@ file: {
       path: 2
       path: 0
       path: 6
-      span: 147
+      span: 163
       span: 2
       span: 25
     }
@@ -29125,7 +30217,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 147
+      span: 163
       span: 26
       span: 33
     }
@@ -29135,7 +30227,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 147
+      span: 163
       span: 36
       span: 37
     }
@@ -54202,652 +55294,6 @@ file: {
   }
 }
 file: {
-  name: "types/sandbox.proto"
-  package: "containerd.types"
-  dependency: "google/protobuf/any.proto"
-  dependency: "google/protobuf/timestamp.proto"
-  message_type: {
-    name: "Sandbox"
-    field: {
-      name: "sandbox_id"
-      number: 1
-      label: LABEL_OPTIONAL
-      type: TYPE_STRING
-      json_name: "sandboxId"
-    }
-    field: {
-      name: "runtime"
-      number: 2
-      label: LABEL_OPTIONAL
-      type: TYPE_MESSAGE
-      type_name: ".containerd.types.Sandbox.Runtime"
-      json_name: "runtime"
-    }
-    field: {
-      name: "spec"
-      number: 3
-      label: LABEL_OPTIONAL
-      type: TYPE_MESSAGE
-      type_name: ".google.protobuf.Any"
-      json_name: "spec"
-    }
-    field: {
-      name: "labels"
-      number: 4
-      label: LABEL_REPEATED
-      type: TYPE_MESSAGE
-      type_name: ".containerd.types.Sandbox.LabelsEntry"
-      json_name: "labels"
-    }
-    field: {
-      name: "created_at"
-      number: 5
-      label: LABEL_OPTIONAL
-      type: TYPE_MESSAGE
-      type_name: ".google.protobuf.Timestamp"
-      json_name: "createdAt"
-    }
-    field: {
-      name: "updated_at"
-      number: 6
-      label: LABEL_OPTIONAL
-      type: TYPE_MESSAGE
-      type_name: ".google.protobuf.Timestamp"
-      json_name: "updatedAt"
-    }
-    field: {
-      name: "extensions"
-      number: 7
-      label: LABEL_REPEATED
-      type: TYPE_MESSAGE
-      type_name: ".containerd.types.Sandbox.ExtensionsEntry"
-      json_name: "extensions"
-    }
-    field: {
-      name: "sandboxer"
-      number: 10
-      label: LABEL_OPTIONAL
-      type: TYPE_STRING
-      json_name: "sandboxer"
-    }
-    nested_type: {
-      name: "Runtime"
-      field: {
-        name: "name"
-        number: 1
-        label: LABEL_OPTIONAL
-        type: TYPE_STRING
-        json_name: "name"
-      }
-      field: {
-        name: "options"
-        number: 2
-        label: LABEL_OPTIONAL
-        type: TYPE_MESSAGE
-        type_name: ".google.protobuf.Any"
-        json_name: "options"
-      }
-    }
-    nested_type: {
-      name: "LabelsEntry"
-      field: {
-        name: "key"
-        number: 1
-        label: LABEL_OPTIONAL
-        type: TYPE_STRING
-        json_name: "key"
-      }
-      field: {
-        name: "value"
-        number: 2
-        label: LABEL_OPTIONAL
-        type: TYPE_STRING
-        json_name: "value"
-      }
-      options: {
-        map_entry: true
-      }
-    }
-    nested_type: {
-      name: "ExtensionsEntry"
-      field: {
-        name: "key"
-        number: 1
-        label: LABEL_OPTIONAL
-        type: TYPE_STRING
-        json_name: "key"
-      }
-      field: {
-        name: "value"
-        number: 2
-        label: LABEL_OPTIONAL
-        type: TYPE_MESSAGE
-        type_name: ".google.protobuf.Any"
-        json_name: "value"
-      }
-      options: {
-        map_entry: true
-      }
-    }
-  }
-  options: {
-    go_package: "github.com/containerd/containerd/api/types;types"
-  }
-  source_code_info: {
-    location: {
-      span: 16
-      span: 0
-      span: 52
-      span: 1
-    }
-    location: {
-      path: 12
-      span: 16
-      span: 0
-      span: 18
-      leading_detached_comments: "\nCopyright The containerd Authors.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n"
-    }
-    location: {
-      path: 2
-      span: 18
-      span: 0
-      span: 25
-    }
-    location: {
-      path: 3
-      path: 0
-      span: 20
-      span: 0
-      span: 35
-    }
-    location: {
-      path: 3
-      path: 1
-      span: 21
-      span: 0
-      span: 41
-    }
-    location: {
-      path: 8
-      span: 23
-      span: 0
-      span: 71
-    }
-    location: {
-      path: 8
-      path: 11
-      span: 23
-      span: 0
-      span: 71
-    }
-    location: {
-      path: 4
-      path: 0
-      span: 27
-      span: 0
-      span: 52
-      span: 1
-      leading_comments: " Sandbox represents a sandbox metadata object that keeps all info required by controller to\n work with a particular instance.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 1
-      span: 27
-      span: 8
-      span: 15
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      span: 29
-      span: 2
-      span: 24
-      leading_comments: " SandboxID is a unique instance identifier within namespace\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      path: 5
-      span: 29
-      span: 2
-      span: 8
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      path: 1
-      span: 29
-      span: 9
-      span: 19
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      path: 3
-      span: 29
-      span: 22
-      span: 23
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      span: 30
-      span: 2
-      span: 36
-      span: 3
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 1
-      span: 30
-      span: 10
-      span: 17
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 0
-      span: 32
-      span: 4
-      span: 20
-      leading_comments: " Name is the name of the runtime.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 0
-      path: 5
-      span: 32
-      span: 4
-      span: 10
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 0
-      path: 1
-      span: 32
-      span: 11
-      span: 15
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 0
-      path: 3
-      span: 32
-      span: 18
-      span: 19
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 1
-      span: 35
-      span: 4
-      span: 36
-      leading_comments: " Options specify additional runtime initialization options for the shim (this data will be available in StartShim).\n Typically this data expected to be runtime shim implementation specific.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 1
-      path: 6
-      span: 35
-      span: 4
-      span: 23
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 1
-      path: 1
-      span: 35
-      span: 24
-      span: 31
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 3
-      path: 0
-      path: 2
-      path: 1
-      path: 3
-      span: 35
-      span: 34
-      span: 35
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      span: 38
-      span: 2
-      span: 22
-      leading_comments: " Runtime specifies which runtime to use for executing this container.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      path: 6
-      span: 38
-      span: 2
-      span: 9
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      path: 1
-      span: 38
-      span: 10
-      span: 17
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      path: 3
-      span: 38
-      span: 20
-      span: 21
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 2
-      span: 41
-      span: 2
-      span: 31
-      leading_comments: " Spec is sandbox configuration (kin of OCI runtime spec), spec's data will be written to a config.json file in the\n bundle directory (similary to OCI spec).\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 2
-      path: 6
-      span: 41
-      span: 2
-      span: 21
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 2
-      path: 1
-      span: 41
-      span: 22
-      span: 26
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 2
-      path: 3
-      span: 41
-      span: 29
-      span: 30
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 3
-      span: 43
-      span: 2
-      span: 33
-      leading_comments: " Labels provides an area to include arbitrary data on containers.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 3
-      path: 6
-      span: 43
-      span: 2
-      span: 21
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 3
-      path: 1
-      span: 43
-      span: 22
-      span: 28
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 3
-      path: 3
-      span: 43
-      span: 31
-      span: 32
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 4
-      span: 45
-      span: 2
-      span: 43
-      leading_comments: " CreatedAt is the time the container was first created.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 4
-      path: 6
-      span: 45
-      span: 2
-      span: 27
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 4
-      path: 1
-      span: 45
-      span: 28
-      span: 38
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 4
-      path: 3
-      span: 45
-      span: 41
-      span: 42
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 5
-      span: 47
-      span: 2
-      span: 43
-      leading_comments: " UpdatedAt is the last time the container was mutated.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 5
-      path: 6
-      span: 47
-      span: 2
-      span: 27
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 5
-      path: 1
-      span: 47
-      span: 28
-      span: 38
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 5
-      path: 3
-      span: 47
-      span: 41
-      span: 42
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 6
-      span: 49
-      span: 2
-      span: 50
-      leading_comments: " Extensions allow clients to provide optional blobs that can be handled by runtime.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 6
-      path: 6
-      span: 49
-      span: 2
-      span: 34
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 6
-      path: 1
-      span: 49
-      span: 35
-      span: 45
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 6
-      path: 3
-      span: 49
-      span: 48
-      span: 49
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 7
-      span: 51
-      span: 2
-      span: 24
-      leading_comments: " Sandboxer is the name of the sandbox controller who manages the sandbox.\n"
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 7
-      path: 5
-      span: 51
-      span: 2
-      span: 8
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 7
-      path: 1
-      span: 51
-      span: 9
-      span: 18
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 7
-      path: 3
-      span: 51
-      span: 21
-      span: 23
-    }
-  }
-  syntax: "proto3"
-  buf_extension: {
-    is_import: false
-    module_info: {
-      name: {
-        remote: "buf.build"
-        owner: "containerd"
-        repository: "api-dev"
-      }
-    }
-    is_syntax_unspecified: false
-  }
-}
-file: {
   name: "services/sandbox/v1/sandbox.proto"
   package: "containerd.services.sandbox.v1"
   dependency: "google/protobuf/any.proto"
@@ -67581,6 +68027,13 @@ file: {
       type: TYPE_STRING
       json_name: "workPath"
     }
+    field: {
+      name: "parent_path"
+      number: 10
+      label: LABEL_OPTIONAL
+      type: TYPE_STRING
+      json_name: "parentPath"
+    }
   }
   message_type: {
     name: "ProcessDetails"
@@ -67599,7 +68052,7 @@ file: {
     location: {
       span: 0
       span: 0
-      span: 62
+      span: 64
       span: 1
     }
     location: {
@@ -68208,7 +68661,7 @@ file: {
       path: 1
       span: 38
       span: 0
-      span: 57
+      span: 59
       span: 1
     }
     location: {
@@ -68591,17 +69044,57 @@ file: {
     }
     location: {
       path: 4
+      path: 1
       path: 2
-      span: 59
+      path: 9
+      span: 58
+      span: 2
+      span: 26
+      leading_comments: " parent image path\n"
+    }
+    location: {
+      path: 4
+      path: 1
+      path: 2
+      path: 9
+      path: 5
+      span: 58
+      span: 2
+      span: 8
+    }
+    location: {
+      path: 4
+      path: 1
+      path: 2
+      path: 9
+      path: 1
+      span: 58
+      span: 9
+      span: 20
+    }
+    location: {
+      path: 4
+      path: 1
+      path: 2
+      path: 9
+      path: 3
+      span: 58
+      span: 23
+      span: 25
+    }
+    location: {
+      path: 4
+      path: 2
+      span: 61
       span: 0
-      span: 62
+      span: 64
       span: 1
     }
     location: {
       path: 4
       path: 2
       path: 1
-      span: 59
+      span: 61
       span: 8
       span: 22
     }
@@ -68610,7 +69103,7 @@ file: {
       path: 2
       path: 2
       path: 0
-      span: 61
+      span: 63
       span: 2
       span: 21
       leading_comments: " exec process id if the process is managed by a shim\n"
@@ -68621,7 +69114,7 @@ file: {
       path: 2
       path: 0
       path: 5
-      span: 61
+      span: 63
       span: 2
       span: 8
     }
@@ -68631,7 +69124,7 @@ file: {
       path: 2
       path: 0
       path: 1
-      span: 61
+      span: 63
       span: 9
       span: 16
     }
@@ -68641,7 +69134,7 @@ file: {
       path: 2
       path: 0
       path: 3
-      span: 61
+      span: 63
       span: 19
       span: 20
     }
@@ -68913,7 +69406,7 @@ file: {
     location: {
       span: 15
       span: 0
-      span: 38
+      span: 37
       span: 1
     }
     location: {
@@ -68925,29 +69418,29 @@ file: {
     }
     location: {
       path: 2
-      span: 18
+      span: 17
       span: 0
       span: 34
     }
     location: {
       path: 8
-      span: 20
+      span: 19
       span: 0
       span: 74
     }
     location: {
       path: 8
       path: 11
-      span: 20
+      span: 19
       span: 0
       span: 74
     }
     location: {
       path: 4
       path: 0
-      span: 25
+      span: 24
       span: 0
-      span: 38
+      span: 37
       span: 1
       leading_comments: " ContainerPath represents a path within an active container's\n filesystem. It acts as either a source or destination in a transfer\n operation, identifying the container and path for archive operations.\n"
     }
@@ -68955,7 +69448,7 @@ file: {
       path: 4
       path: 0
       path: 1
-      span: 25
+      span: 24
       span: 8
       span: 21
     }
@@ -68964,87 +69457,87 @@ file: {
       path: 0
       path: 2
       path: 0
-      span: 26
-      span: 8
-      span: 32
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      path: 5
-      span: 26
-      span: 8
-      span: 14
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      path: 1
-      span: 26
-      span: 15
-      span: 27
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 0
-      path: 3
-      span: 26
-      span: 30
-      span: 31
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      span: 27
-      span: 8
-      span: 24
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      path: 5
-      span: 27
-      span: 8
-      span: 14
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      path: 1
-      span: 27
-      span: 15
-      span: 19
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 1
-      path: 3
-      span: 27
-      span: 22
-      span: 23
-    }
-    location: {
-      path: 4
-      path: 0
-      path: 2
-      path: 2
-      span: 32
-      span: 8
       span: 25
+      span: 2
+      span: 26
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      path: 5
+      span: 25
+      span: 2
+      span: 8
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      path: 1
+      span: 25
+      span: 9
+      span: 21
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 0
+      path: 3
+      span: 25
+      span: 24
+      span: 25
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      span: 26
+      span: 2
+      span: 18
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      path: 5
+      span: 26
+      span: 2
+      span: 8
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      path: 1
+      span: 26
+      span: 9
+      span: 13
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 1
+      path: 3
+      span: 26
+      span: 16
+      span: 17
+    }
+    location: {
+      path: 4
+      path: 0
+      path: 2
+      path: 2
+      span: 31
+      span: 2
+      span: 19
       leading_comments: " When true and path is a directory, return only the directory entry\n itself without walking into its contents. This is useful for\n stat-like operations where only the directory's metadata is needed.\n"
     }
     location: {
@@ -69053,9 +69546,9 @@ file: {
       path: 2
       path: 2
       path: 5
-      span: 32
-      span: 8
-      span: 12
+      span: 31
+      span: 2
+      span: 6
     }
     location: {
       path: 4
@@ -69063,9 +69556,9 @@ file: {
       path: 2
       path: 2
       path: 1
-      span: 32
-      span: 13
-      span: 20
+      span: 31
+      span: 7
+      span: 14
     }
     location: {
       path: 4
@@ -69073,18 +69566,18 @@ file: {
       path: 2
       path: 2
       path: 3
-      span: 32
-      span: 23
-      span: 24
+      span: 31
+      span: 17
+      span: 18
     }
     location: {
       path: 4
       path: 0
       path: 2
       path: 3
-      span: 37
-      span: 8
       span: 36
+      span: 2
+      span: 30
       leading_comments: " When true, preserve the UID/GID from tar headers when extracting\n files. When false, extracted files are owned by the extracting\n process.\n"
     }
     location: {
@@ -69093,9 +69586,9 @@ file: {
       path: 2
       path: 3
       path: 5
-      span: 37
-      span: 8
-      span: 12
+      span: 36
+      span: 2
+      span: 6
     }
     location: {
       path: 4
@@ -69103,9 +69596,9 @@ file: {
       path: 2
       path: 3
       path: 1
-      span: 37
-      span: 13
-      span: 31
+      span: 36
+      span: 7
+      span: 25
     }
     location: {
       path: 4
@@ -69113,9 +69606,9 @@ file: {
       path: 2
       path: 3
       path: 3
-      span: 37
-      span: 34
-      span: 35
+      span: 36
+      span: 28
+      span: 29
     }
   }
   syntax: "proto3"
@@ -72262,8 +72755,8 @@ file: {
       path: 2
       path: 0
       span: 34
-      span: 8
-      span: 26
+      span: 2
+      span: 20
     }
     location: {
       path: 4
@@ -72272,8 +72765,8 @@ file: {
       path: 0
       path: 5
       span: 34
+      span: 2
       span: 8
-      span: 14
     }
     location: {
       path: 4
@@ -72282,8 +72775,8 @@ file: {
       path: 0
       path: 1
       span: 34
+      span: 9
       span: 15
-      span: 21
     }
     location: {
       path: 4
@@ -72292,17 +72785,17 @@ file: {
       path: 0
       path: 3
       span: 34
+      span: 18
+      span: 19
+    }
+    location: {
+      path: 4
+      path: 2
+      path: 2
+      path: 1
+      span: 35
+      span: 2
       span: 24
-      span: 25
-    }
-    location: {
-      path: 4
-      path: 2
-      path: 2
-      path: 1
-      span: 35
-      span: 8
-      span: 30
     }
     location: {
       path: 4
@@ -72311,8 +72804,8 @@ file: {
       path: 1
       path: 5
       span: 35
+      span: 2
       span: 8
-      span: 14
     }
     location: {
       path: 4
@@ -72321,8 +72814,8 @@ file: {
       path: 1
       path: 1
       span: 35
-      span: 15
-      span: 25
+      span: 9
+      span: 19
     }
     location: {
       path: 4
@@ -72331,8 +72824,8 @@ file: {
       path: 1
       path: 3
       span: 35
-      span: 28
-      span: 29
+      span: 22
+      span: 23
     }
     location: {
       path: 4
@@ -72357,8 +72850,8 @@ file: {
       path: 2
       path: 0
       span: 42
-      span: 8
-      span: 26
+      span: 2
+      span: 20
     }
     location: {
       path: 4
@@ -72367,8 +72860,8 @@ file: {
       path: 0
       path: 5
       span: 42
+      span: 2
       span: 8
-      span: 14
     }
     location: {
       path: 4
@@ -72377,8 +72870,8 @@ file: {
       path: 0
       path: 1
       span: 42
+      span: 9
       span: 15
-      span: 21
     }
     location: {
       path: 4
@@ -72387,17 +72880,17 @@ file: {
       path: 0
       path: 3
       span: 42
+      span: 18
+      span: 19
+    }
+    location: {
+      path: 4
+      path: 3
+      path: 2
+      path: 1
+      span: 43
+      span: 2
       span: 24
-      span: 25
-    }
-    location: {
-      path: 4
-      path: 3
-      path: 2
-      path: 1
-      span: 43
-      span: 8
-      span: 30
     }
     location: {
       path: 4
@@ -72406,8 +72899,8 @@ file: {
       path: 1
       path: 5
       span: 43
+      span: 2
       span: 8
-      span: 14
     }
     location: {
       path: 4
@@ -72416,8 +72909,8 @@ file: {
       path: 1
       path: 1
       span: 43
-      span: 15
-      span: 25
+      span: 9
+      span: 19
     }
     location: {
       path: 4
@@ -72426,8 +72919,8 @@ file: {
       path: 1
       path: 3
       span: 43
-      span: 28
-      span: 29
+      span: 22
+      span: 23
     }
   }
   syntax: "proto3"

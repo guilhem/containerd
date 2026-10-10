@@ -404,6 +404,9 @@ type ProxyPlugin struct {
 	Platform     string            `toml:"platform"`
 	Exports      map[string]string `toml:"exports"`
 	Capabilities []string          `toml:"capabilities"`
+	// DefaultTimeout bounds each call to the plugin when the caller's context
+	// carries no deadline of its own. Empty leaves calls unbounded.
+	DefaultTimeout string `toml:"default_timeout"`
 }
 
 // Decode unmarshals a plugin specific configuration by plugin id
@@ -419,8 +422,7 @@ func (c *Config) Decode(ctx context.Context, id string, config any) (any, error)
 	}
 
 	if err := toml.NewDecoder(bytes.NewReader(b)).DisallowUnknownFields().Decode(config); err != nil {
-		var serr *toml.StrictMissingError
-		if errors.As(err, &serr) {
+		if serr, ok := errors.AsType[*toml.StrictMissingError](err); ok {
 			for _, derr := range serr.Errors {
 				log.G(ctx).WithFields(log.Fields{
 					"plugin": id,
@@ -454,9 +456,8 @@ func LoadConfigWithPlugins(ctx context.Context, path string, plugins PluginFunc,
 	}
 
 	var (
-		loaded            = map[string]bool{}
-		pending           = []string{path}
-		rootConfigVersion = 0
+		loaded  = map[string]bool{}
+		pending = []string{path}
 	)
 
 	for len(pending) > 0 {
@@ -470,14 +471,6 @@ func LoadConfigWithPlugins(ctx context.Context, path string, plugins PluginFunc,
 		config, err := loadConfigFile(ctx, path)
 		if err != nil {
 			return err
-		}
-
-		// Check to make sure drop-in configs does not have a higher version than the root config version
-		if rootConfigVersion == 0 {
-			rootConfigVersion = config.Version
-		}
-		if config.Version > rootConfigVersion {
-			return fmt.Errorf("drop-in config version %d higher than root config version %d", config.Version, rootConfigVersion)
 		}
 
 		if config.Version < out.Version {
@@ -536,8 +529,7 @@ func loadConfigFile(ctx context.Context, path string) (*Config, error) {
 	defer f.Close()
 
 	if err := toml.NewDecoder(f).DisallowUnknownFields().Decode(config); err != nil {
-		var serr *toml.StrictMissingError
-		if errors.As(err, &serr) {
+		if serr, ok := errors.AsType[*toml.StrictMissingError](err); ok {
 			for _, derr := range serr.Errors {
 				row, col := derr.Position()
 				log.G(ctx).WithFields(log.Fields{
@@ -556,8 +548,7 @@ func loadConfigFile(ctx context.Context, path string) (*Config, error) {
 			err = toml.NewDecoder(f).Decode(config)
 		}
 		if err != nil {
-			var derr *toml.DecodeError
-			if errors.As(err, &derr) {
+			if derr, ok := errors.AsType[*toml.DecodeError](err); ok {
 				row, column := derr.Position()
 				log.G(ctx).WithFields(log.Fields{
 					"file":   path,

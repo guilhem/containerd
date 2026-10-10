@@ -36,18 +36,20 @@ jobs:
           df -h
 
       - name: Checkout containerd
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: src/github.com/containerd/containerd
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Checkout Kubernetes
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: kubernetes/kubernetes
           path: src/k8s.io/kubernetes
           ref: ${{ inputs.k8s_version }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install Go
         uses: ./src/github.com/containerd/containerd/.github/actions/install-go
@@ -61,6 +63,12 @@ jobs:
           sudo apt-get install -y gperf build-essential pkg-config
           echo "GOPATH=${{ github.workspace }}" >> $GITHUB_ENV
           echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+
+      - name: Install criu
+        run: |
+          sudo add-apt-repository -y ppa:criu/ppa
+          sudo apt-get update
+          sudo apt-get install -y criu
 
       - name: Build and Install containerd
         working-directory: ./src/github.com/containerd/containerd

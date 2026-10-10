@@ -28,7 +28,6 @@ import (
 	"github.com/containerd/nri"
 	v1 "github.com/containerd/nri/types/v1"
 	"github.com/containerd/typeurl/v2"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/opencontainers/selinux/go-selinux"
 
 	containerd "github.com/containerd/containerd/v2/client"
@@ -44,6 +43,7 @@ import (
 	containerdio "github.com/containerd/containerd/v2/pkg/cio"
 	"github.com/containerd/containerd/v2/pkg/deprecation"
 	"github.com/containerd/errdefs"
+	dockerref "github.com/distribution/reference"
 )
 
 func init() {
@@ -79,10 +79,13 @@ func (c *Controller) Start(ctx context.Context, id string) (cin sandbox.Controll
 	)
 
 	sandboxImage := c.getSandboxImageName()
-
-	pauseImage, err := c.client.GetImage(ctx, sandboxImage)
+	normalized, err := dockerref.ParseDockerRef(sandboxImage)
 	if err != nil {
-		return cin, fmt.Errorf("failed to get sandbox image %q: %w", sandboxImage, err)
+		return cin, fmt.Errorf("failed to parse image reference %q: %w", sandboxImage, err)
+	}
+	pauseImage, err := c.client.GetImage(ctx, normalized.String())
+	if err != nil {
+		return cin, fmt.Errorf("failed to get sandbox image %q: %w", normalized.String(), err)
 	}
 
 	// Get the image spec from containerd image
@@ -141,7 +144,13 @@ func (c *Controller) Start(ctx context.Context, id string) (cin sandbox.Controll
 		return cin, fmt.Errorf("failed to generate sandbox container spec: %w", err)
 	}
 
-	log.G(ctx).WithField("podsandboxid", id).Debugf("sandbox container spec: %#+v", spew.NewFormatter(spec))
+	logger := log.G(ctx)
+	if logger.Logger.IsLevelEnabled(log.DebugLevel) {
+		logger.WithFields(log.Fields{
+			"podsandboxid": id,
+			"spec":         spec,
+		}).Debug("sandbox container spec")
+	}
 
 	metadata.ProcessLabel = spec.Process.SelinuxLabel
 	defer func() {
@@ -324,9 +333,10 @@ func (c *Controller) Start(ctx context.Context, id string) (cin sandbox.Controll
 		return cin, fmt.Errorf("failed to marshal spec for sandbox container %s: %w", id, err)
 	}
 
+	exitCtx := ctrdutil.WithNamespace(context.WithoutCancel(ctx))
 	go func() {
-		if err := c.waitSandboxExit(ctrdutil.NamespacedContext(), podSandbox, exitCh); err != nil {
-			log.G(context.Background()).Warnf("failed to wait pod sandbox exit %v", err)
+		if err := c.waitSandboxExit(exitCtx, podSandbox, exitCh); err != nil {
+			log.G(exitCtx).Warnf("failed to wait pod sandbox exit %v", err)
 		}
 	}()
 
